@@ -1,0 +1,46 @@
+{
+    "actors": [
+      {
+        "id": "actor1",
+        "firstname": "Leonardo",
+        "lastname": "DiCaprio",
+        "birthyear": 1974,
+        "films": ["a8034f44-aee4-44cf-b32c-74cf452aaaae","96798c08-d19b-4986-a05d-7da856efb697"]
+      },
+      {
+        "id": "actor2",
+        "firstname": "Monica",
+        "lastname": "Bellucci",
+        "birthyear": 1964,
+        "films": ["96798c08-d19b-4986-a05d-7da856efb697","720d006c-3a57-4b6a-b18f-9b713b073f3c"]
+      },
+      {
+        "id": "actor3",
+        "firstname": "Alain",
+        "lastname": "Chabat",
+        "birthyear": 1958,
+        "films": ["96798c08-d19b-4986-a05d-7da856efb697"]
+      },
+      {
+        "id": "actor4",
+        "firstname": "George",
+        "lastname": "Clooney",
+        "birthyear": 1961,
+        "films": ["a8034f44-aee4-44cf-b32c-74cf452aaaae"]
+      },
+      {
+        "id": "actor5",
+        "firstname": "Jean",
+        "lastname": "Dujardin",
+        "birthyear": 1972,
+        "films": ["39ab85e5-5e8e-4dc5-afea-65dc368bd7ab","720d006c-3a57-4b6a-b18f-9b713b073f3c"]
+      },
+      {
+        "id": "actor6",
+        "firstname": "Daniel",
+        "lastname": "Radcliffe",
+        "birthyear": 1989,
+        "films": ["7daf7208-be4d-4944-a3ae-c1c2f516f3e6","39ab85e5-5e8e-4dc5-afea-65dc368bd7ab"]
+      }
+    ]
+  }
