@@ -26,7 +26,7 @@ def get_movies_by_date(date):
     for d in schedule:
         if str(d['date']) == str(date):
             return make_response(jsonify(d), 200)
-    return make_response({"error": "No date found"})
+    return make_response({"error": "No date found"}, 400)
 
 
 if __name__ == "__main__":
