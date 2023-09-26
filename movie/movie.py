@@ -19,7 +19,7 @@ def home():
     return make_response("<h1 style='color:blue'>Welcome to the Movie service!</h1>", 200)
 
 
-@app.route("/movies", methods=['GET'])
+@app.route("/json", methods=['GET'])
 def get_movies():
     res = make_response(jsonify(movies), 200)
     return res
@@ -65,6 +65,22 @@ def del_movie(movieid):
             return make_response(jsonify(movie), 200)
 
     res = make_response(jsonify({"error": "movie ID not found"}), 400)
+    return res
+
+
+@app.route("/titles", methods=['GET'])
+def get_movie_bytitle():
+    json = ""
+    if request.args:
+        req = request.args
+        for movie in movies:
+            if str(movie["title"]) == str(req["title"]):
+                json = movie
+
+    if not json:
+        res = make_response(jsonify({"error": "movie title not found"}), 400)
+    else:
+        res = make_response(jsonify(json), 200)
     return res
 
 
