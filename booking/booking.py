@@ -33,19 +33,22 @@ def get_bookings_from_user(userid):
 @app.route("/bookings/<userid>", methods=["POST"])
 def add_booking_user(userid):
     body = request.get_json()
-    for booking in bookings:
-        if str(booking["userid"]) == str(userid):
-            for date in booking['dates']:
-                if str(date['date']) == str(body['date']):
-                    if body['movieid'] in date['movies']:
-                        return make_response('an existing item already exists', 409)
-
-                    date['movies'].append(body['movieid'])
-                    return make_response(jsonify(booking), 200)
-
-            booking['dates'].append({'date': body['date'], 'movies': [body['movieid']]})
-            return make_response(jsonify(booking), 200)
-    return make_response({"error"}, 400)
+    date, movie_id = body['date'], body['movieid']
+    r = requests.get('http://172.16.137.68:3202/showmovies/' + body['date'])
+    res_body = r.json()
+    if not movie_id in res_body['movies']:
+        return make_response({'error': 'movie is not available for booking'}, 400)
+    user_booking = next((x for x in bookings if x['userid'] == userid), None)
+    if user_booking is None:
+        bookings.append({'userid': userid, 'bookings': [{'movieid': movie_id, 'date': date}]})
+    else:
+        booking_date = next(x for x in user_booking['dates'] if x['date'] == date)
+        print(booking_date)
+        if movie_id in booking_date['movies']:
+            return make_response({'error': 'movie already booked for this user'}, 400)
+        else:
+            booking_date['movies'].append(movie_id)
+    return make_response(user_booking, 200)
 
 
 if __name__ == "__main__":
