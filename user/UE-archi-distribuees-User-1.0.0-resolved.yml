@@ -1,0 +1,97 @@
+---
+openapi: 3.1.0
+info:
+  title: User API
+  description: This is the API of the User service
+  contact:
+    email: elias.morio@imt-atlantique.net
+  license:
+    name: GPL v3
+    url: https://www.gnu.org/licenses/gpl-3.0.en.html
+  version: 1.0.0
+tags:
+- name: admins
+  description: Secured Admin-only calls
+- name: developers
+  description: Operations available to regular developers
+paths:
+  /:
+    get:
+      tags:
+      - developers
+      summary: home page of the service
+      operationId: home
+      responses:
+        "200":
+          description: welcome message
+          content:
+            text/html:
+              schema:
+                type: string
+                example: <h1>Test</h1>
+  /bookingsdetails:
+    get:
+      tags:
+      - developers
+      summary: get the full JSON database
+      operationId: get_json
+      responses:
+        "200":
+          description: full JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllBookingsDetails'
+#  /delete/{userid}:
+#    post:
+#      tags:
+#        - admins
+#      summary: delete a user
+#      description: By passing the userid in the path, you can delete a user
+#      operationId: delete_user
+#      responses:
+#        "200":
+#          description: user deleted
+#        "404":
+#          description: user not found
+
+
+components:
+  schemas:
+    AllBookingsDetails:
+      type: array
+      items:
+        $ref: '#/components/schemas/BookingDetails'
+    BookingDetails:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+          example: 20210101
+        movies:
+          type: array
+          items:
+            $ref: '#/components/schemas/MovieItem'
+    MovieItem:
+      type: object
+      required:
+        - title
+        - rating
+        - director
+        - id
+      properties:
+        title:
+          type: string
+          example: The Martian
+        rating:
+          type: integer
+          example: 7
+        director:
+          type: string
+          example: Paul McGuigan
+        id:
+          type: string
+          example: 39ab85e5-5e8e-4dc5-afea-65dc368bd7ab
+
+
