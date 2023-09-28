@@ -148,6 +148,32 @@ paths:
                 $ref: '#/components/schemas/MovieItem'
         "400":
           description: bad input parameter
+  /API/{movie_title}:
+    get:
+      tags:
+        - developers
+      summary: get the movie by its title from the API
+      description: |
+        By passing in the appropriate options, you can get Movie info from the API
+      operationId: get_movie_bytitle_from_api
+      parameters:
+      - name: movie_title
+        in: path
+        description: Movie Title
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Movie item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieItem'
+        "400":
+          description: bad input parameter
   /movies/{movieid}/{rate}:
     put:
       tags:

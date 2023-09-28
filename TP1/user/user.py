@@ -10,12 +10,15 @@ HOST = '0.0.0.0'
 booking_service_url = "http://172.20.10.2:3201/"
 movies_service_url = "http://172.20.10.2:3200/"
 
+
 with open('{}/databases/users.json'.format("."), "r") as jsf:
-   users = json.load(jsf)["users"]
+    users = json.load(jsf)["users"]
+
 
 @app.route("/", methods=['GET'])
 def home():
-   return "<h1 style='color:blue'>Welcome to the User service!</h1>"
+    return "<h1 style='color:blue'>Welcome to the User service!</h1>"
+
 
 @app.route("/users", methods=['GET'])
 def get_json():
@@ -52,6 +55,30 @@ def get_info_movies_user(userid):
     return res
 
 
+@app.route("/users/<userid>/<date>", methods=['GET'])
+def get_movies_for_user_and_date(userid, date):
+    booking_response = requests.get(f"{booking_service_url}/bookings/{userid}")
+
+    # Vérifiez si la réponse du service de réservation a retourné avec succès
+    if booking_response.status_code != 200:
+        return make_response(jsonify({"error": "Booking data not found"}), 404)
+
+    booking = booking_response.json()
+
+    result = []
+
+    for data in booking["dates"]:
+        if data["date"] == date:
+            for booking_movie in data["movies"]:
+                result.append(booking_movie)
+
+    if not result:
+        return make_response(jsonify({"error": "No reservation for this day"}), 404)
+
+    res = make_response(jsonify(result), 200)
+    return res
+
+
 if __name__ == "__main__":
-   print("Server running in port %s"%(PORT))
-   app.run(host=HOST, port=PORT)
+    print("Server running in port %s" % (PORT))
+    app.run(host=HOST, port=PORT)

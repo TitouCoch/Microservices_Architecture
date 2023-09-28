@@ -1,12 +1,15 @@
+import requests
 from flask import Flask, render_template, request, jsonify, make_response
 import json
 import sys
 from werkzeug.exceptions import NotFound
+from config import api_key
 
 app = Flask(__name__)
 
 PORT = 3200
 HOST = '0.0.0.0'
+url_api_movies = "https://www.omdbapi.com/"
 
 with open('{}/databases/movies.json'.format("."), "r") as jsf:
    movies = json.load(jsf)["movies"]
@@ -47,6 +50,19 @@ def get_movie_bytitle():
     else:
         res = make_response(jsonify(json),200)
     return res
+
+
+@app.route("/API/<movie_title>", methods=['GET'])
+def get_movie_bytitle_from_api(movie_title):
+    info_movie = requests.get(f"{url_api_movies}?apikey={api_key}&s={movie_title}")
+
+    # Vérifiez si l'API répond avec succès
+    if info_movie.status_code != 200:
+        return make_response(jsonify({"error": "No movie Found"}), 404)
+
+    info_movie = info_movie.json()
+    return info_movie
+
 
 @app.route("/movies/<movieid>", methods=['POST'])
 def create_movie(movieid):
