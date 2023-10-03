@@ -1,3 +1,10 @@
 type Query {
     movie_with_id(_id: String!): Movie
 }
+
+type Movie {
+    id: String!
+    title: String!
+    director: String!
+    rating: Float!
+}
