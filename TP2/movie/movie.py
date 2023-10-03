@@ -23,6 +23,10 @@ actor = ObjectType('Actor')
 movie.set_field('actors', r.resolve_actors_in_movie)
 schema = make_executable_schema(type_defs, movie, query, mutation, actor)
 
+query = QueryType()
+query.set_field('all_movies', r.all_movies)
+schema = make_executable_schema(type_defs, [movie], query)
+
 # root message
 @app.route("/", methods=['GET'])
 def home():
