@@ -1,99 +1,67 @@
-import json
 import uuid
 
+from utilities import MovieRepository, ActorRepository
 
-def movie_with_id(_, info, _id):
-    with open('{}/data/movies.json'.format("."), "r") as file:
-        movies = json.load(file)
-        for movie in movies['movies']:
-            if movie['id'] == _id:
-                return movie
-
-
-def update_movie_rate(_, info, _id, _rating):
-    newmovies = {}
-    newmovie = {}
-    with open('{}/data/movies.json'.format("."), "r") as rfile:
-        movies = json.load(rfile)
-        for movie in movies['movies']:
-            if movie['id'] == _id:
-                movie['rating'] = _rating
-                newmovie = movie
-                newmovies = movies
-    with open('{}/data/movies.json'.format("."), "w") as wfile:
-        json.dump(newmovies, wfile)
-    print(newmovie)
-    return newmovie
+actor_repository = ActorRepository()
+movie_repository = MovieRepository()
 
 
 def resolve_actors_in_movie(movie, info):
-    with open('{}/data/actors.json'.format("."), "r") as file:
-        data = json.load(file)
-        actors = [actor for actor in data['actors'] if movie['id'] in actor['films']]
-        return actors
+    return [actor for actor in actor_repository.get_all() if movie['id'] in actor['films']]
 
 
 def resolve_films_in_actor(actor, info):
-    with open('{}/data/movies.json'.format("."), "r") as file:
-        data = json.load(file)
-        movies = [movie for movie in data['movies'] if movie['id'] in actor['films']]
-        return movies
+    return [movie for movie in movie_repository.get_all() if movie['id'] in actor['films']]
+
+
+def movie_with_id(_, info, _id):
+    return movie_repository.get_by_field('id', _id)
+
+
+def update_movie_rate(_, info, _id, _rating):
+    movie_repository.update_rating(_id, _rating)
+    return movie_repository.get_by_field('id', _id)
 
 
 def actor_with_id(_, info, _id):
-    with open('{}/data/actors.json'.format("."), "r") as file:
-        data = json.load(file)
-        for actor in data['actors']:
-            if actor['id'] == _id:
-                return actor
+    return actor_repository.get_by_field('id', _id)
 
 
 def all_movies(_, info):
-    with open('{}/data/movies.json'.format("."), "r") as file:
-        data = json.load(file)
-        print(data)
-        return data['movies']
+    return movie_repository.get_all()
 
 
 def movie_with_title(_, info, _title):
-    with open('{}/data/movies.json'.format("."), "r") as file:
-        movies = json.load(file)['movies']
-        for movie in movies:
-            if str(movie['title']) == str(_title):
-                return movie
+    return movie_repository.get_by_field('title', _title)
 
 
 def delete_a_movie(_, info, _id):
-    print('[MOVIE] Deleting movie with id {}'.format(_id))
-    new_movies = {"movies": []}
-    with open('{}/data/movies.json'.format("."), "r") as rfile:
-        movies = json.load(rfile)['movies']
-        for movie in movies:
-            if str(movie['id']) == str(_id):
-                movieToDel = movie
-        if not movieToDel:
-            return False
-        movies.remove(movieToDel)
-        new_movies['movies'] = movies
-
-    with open('{}/data/movies.json'.format("."), "w") as wfile:
-        json.dump(new_movies, wfile)
-        return True
+    if movie_repository.get_by_field('id', _id) is None:
+        return False
+    movie_repository.delete(_id)
+    return True
 
 
 def add_a_movie(_, info, _movie):
-    with open('{}/data/movies.json'.format("."), "r") as rfile:
-        movies = json.load(rfile)
+    new_movie = movie_repository.add({
+        "id": str(uuid.uuid4()),
+        "title": _movie['title'],
+        "director": _movie['director'],
+        "rating": _movie['rating']
+    })
+    if _movie['actors'] is not None:
+        for actor in _movie['actors']:
+            print(actor)
+            res = actor_repository.exist(actor)
+            if res is False:
+                actor_repository.add({
+                    "id": str(uuid.uuid4()),
+                    "firstname": actor['firstname'],
+                    "lastname": actor['lastname'],
+                    "birthyear": actor['birthyear'],
+                    "films": [new_movie['id']]
+                })
+            else:
+                actor_repository.add_movie(res['id'], new_movie['id'])
 
-    movie = {
-        'title': _movie['title'],
-        'rating': _movie['rating'],
-        'director': _movie['director'],
-        'id': str(uuid.uuid4())
-    }
-    movies['movies'].append(movie)
-    with open('{}/data/movies.json'.format("."), "w") as wfile:
-        json.dump(movies, wfile)
-    return movie
-
-# TODO
+    return new_movie

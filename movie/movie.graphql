@@ -19,6 +19,14 @@ type Movie {
     actors: [Actor]
 }
 
+type Actor {
+    id: String!
+    firstname: String!
+    lastname: String!
+    birthyear: Int!
+    films: [Movie]
+}
+
 input MovieInput {
     title: String!,
     director: String!,
@@ -28,16 +36,7 @@ input MovieInput {
 
 input ActorInput {
     id: String,
-    firstname: String!,
-    lastname: String!,
-    birthyear: Int!
+    firstname: String,
+    lastname: String,
+    birthyear: Int
 }
-
-type Actor {
-    id: String!
-    firstname: String!
-    lastname: String!
-    birthyear: Int!
-    films: [Movie]
-}
-
