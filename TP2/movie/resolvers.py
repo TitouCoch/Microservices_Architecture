@@ -1,8 +1,6 @@
 import json
 import uuid
 
-from flask import make_response, jsonify
-
 
 def movie_with_id(_, info, _id):
     with open('{}/data/movies.json'.format("."), "r") as file:
@@ -12,26 +10,19 @@ def movie_with_id(_, info, _id):
                 return movie
 
 
-def actors_with_id(_, info, _id):
-    with open('{}/data/actors.json'.format("."), "r") as file:
-        data = json.load(file)
-        for actor in data['actors']:
-            if actor['id'] == _id:
-                return actor
-
-
-def update_movie_rate(_, info, _id, _rate):
+def update_movie_rate(_, info, _id, _rating):
     newmovies = {}
     newmovie = {}
     with open('{}/data/movies.json'.format("."), "r") as rfile:
         movies = json.load(rfile)
         for movie in movies['movies']:
             if movie['id'] == _id:
-                movie['rating'] = _rate
+                movie['rating'] = _rating
                 newmovie = movie
                 newmovies = movies
     with open('{}/data/movies.json'.format("."), "w") as wfile:
         json.dump(newmovies, wfile)
+    print(newmovie)
     return newmovie
 
 
@@ -49,17 +40,25 @@ def resolve_films_in_actor(actor, info):
         return movies
 
 
+def actor_with_id(_, info, _id):
+    with open('{}/data/actors.json'.format("."), "r") as file:
+        data = json.load(file)
+        for actor in data['actors']:
+            if actor['id'] == _id:
+                return actor
+
 
 def all_movies(_, info):
     with open('{}/data/movies.json'.format("."), "r") as file:
-        movies = json.load(file)
-    return movies["movies"]
+        data = json.load(file)
+        print(data)
+        return data['movies']
 
 
 def movie_with_title(_, info, _title):
     with open('{}/data/movies.json'.format("."), "r") as file:
-        movies = json.load(file)
-        for movie in movies['movies']:
+        movies = json.load(file)['movies']
+        for movie in movies:
             if str(movie['title']) == str(_title):
                 return movie
 
@@ -86,4 +85,6 @@ def add_movie(_, info, _movie):
     with open('{}/data/movies.json'.format("."), "w") as wfile:
         json.dump(movies, wfile)
     return movies['movies']
+
+
 
