@@ -20,9 +20,17 @@ type Movie {
 }
 
 input MovieInput {
-    title: String!
-    director: String!
+    title: String!,
+    director: String!,
     rating: Float!
+    actors: [ActorInput]
+}
+
+input ActorInput {
+    id: String,
+    firstname: String!,
+    lastname: String!,
+    birthyear: Int!
 }
 
 type Actor {

@@ -14,8 +14,8 @@ def movie_with_id(_, info, _id):
 
 def actors_with_id(_, info, _id):
     with open('{}/data/actors.json'.format("."), "r") as file:
-        actors = json.load(file)
-        for actor in actors['actors']:
+        data = json.load(file)
+        for actor in data['actors']:
             if actor['id'] == _id:
                 return actor
 
@@ -42,11 +42,12 @@ def resolve_actors_in_movie(movie, info):
         return actors
 
 
-def resolve_films_in_actors(actor, info):
+def resolve_films_in_actor(actor, info):
     with open('{}/data/movies.json'.format("."), "r") as file:
         data = json.load(file)
         movies = [movie for movie in data['movies'] if movie['id'] in actor['films']]
         return movies
+
 
 
 def all_movies(_, info):
