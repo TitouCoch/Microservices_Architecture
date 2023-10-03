@@ -11,8 +11,12 @@ app = Flask(__name__)
 type_defs = load_schema_from_path("movie.graphql")
 query = QueryType()
 movie = ObjectType('Movie')
+actor = ObjectType('Actor')
 query.set_field("movie_with_id", r.movie_with_id)
-schema = make_executable_schema(type_defs, query, movie)
+movie.set_field('actors', r.resolve_actors_in_movie)
+mutation = MutationType()
+mutation.set_field('update_movie_rate', r.update_movie_rate)
+schema = make_executable_schema(type_defs, movie, query, mutation, actor)
 
 # root message
 @app.route("/", methods=['GET'])

@@ -1,5 +1,10 @@
 type Query {
     movie_with_id(_id: String!): Movie
+    actor_with_id(_id: String!): Actor
+}
+
+type Mutation {
+    update_movie_rate(_id: String!, _rating: Float!): Movie
 }
 
 type Movie {
@@ -7,4 +12,13 @@ type Movie {
     title: String!
     director: String!
     rating: Float!
+    actors: [Actor]
+}
+
+type Actor {
+    id: String!
+    firstname: String!
+    lastname: String!
+    birthyear: Int!
+    films: [String!]
 }
