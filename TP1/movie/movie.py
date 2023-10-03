@@ -1,9 +1,7 @@
 import requests
 from flask import Flask, render_template, request, jsonify, make_response
 import json
-import sys
-from werkzeug.exceptions import NotFound
-from config import api_key
+from TP1.config import api_key
 
 app = Flask(__name__)
 
@@ -61,7 +59,9 @@ def get_movie_bytitle_from_api(movie_title):
         return make_response(jsonify({"error": "No movie Found"}), 404)
 
     info_movie = info_movie.json()
-    return info_movie
+    return info_movie["Response"]
+    # Pour retourner l'image de l'affiche du film
+    #return make_response(f"<img src='{info_movie['Search'][0]['Poster']}'>", 200)
 
 
 @app.route("/movies/<movieid>", methods=['POST'])
