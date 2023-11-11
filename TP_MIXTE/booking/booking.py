@@ -3,9 +3,49 @@ import grpc
 from concurrent import futures
 import booking_pb2
 import booking_pb2_grpc
+import showtime_pb2
+import showtime_pb2_grpc
+
+
+# Setup the gRPC channel and stub
+channel = grpc.insecure_channel('localhost:3003')
+stub = showtime_pb2_grpc.ShowtimeStub(channel)
+
+
+def get_list_showtime(_stub):
+    allshowtimes = _stub.GetListShowtimes(showtime_pb2.EmptyShowTime())
+    print(allshowtimes)
+    for showtime in allshowtimes:
+        print("Showtime %s" % showtime)
+
+
+def get_showtime_by_date(_stub, date):
+    showtime_date_request = showtime_pb2.ShowtimeDate(date=date)
+    try:
+        showtime_data = _stub.GetShowtimeByDate(showtime_date_request)
+        movie_ids = [movie.movie for movie in showtime_data.movies]
+        print("Showtime data for date:", showtime_data.date)
+        print("Movies:", movie_ids)
+    except grpc.RpcError as e:
+        print("Rpc request failed")
+
+
+def get_showtime_by_movie(_stub, movie):
+    showtime_movie_request = showtime_pb2.ShowtimeMovie(movie=movie)
+    try:
+        showtime_dates_response = _stub.GetShowtimeByMovie(showtime_movie_request)
+        response_message = f"Movie ID {movie} available showtime dates: {list(showtime_dates_response.dates)}"
+        print(response_message)
+    except grpc.RpcError as e:
+        print("Rpc request failed")
 
 
 class BookingServicer(booking_pb2_grpc.BookingServicer):
+
+    #get_list_showtime(stub)
+    #get_showtime_by_date(stub, "20151201")
+    #get_showtime_by_movie(stub, "39ab85e5-5e8e-4dc5-afea-65dc368bd7ab")
+
 
     def __init__(self):
         with open('{}/data/bookings.json'.format("."), "r") as jsf:
@@ -42,3 +82,4 @@ def serve():
 
 if __name__ == '__main__':
     serve()
+

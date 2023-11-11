@@ -1,7 +1,6 @@
-from flask import Flask, render_template, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response
 import requests
 import json
-from werkzeug.exceptions import NotFound
 app = Flask(__name__)
 
 PORT = 3201
@@ -11,14 +10,17 @@ showtime_service_url = "http://172.20.10.2:3202/"
 with open('{}/databases/bookings.json'.format("."), "r") as jsf:
    bookings = json.load(jsf)["bookings"]
 
+
 @app.route("/", methods=['GET'])
 def home():
    return "<h1 style='color:blue'>Welcome to the Booking service!</h1>"
+
 
 @app.route("/bookings", methods=['GET'])
 def get_json():
     res = make_response(jsonify(bookings), 200)
     return res
+
 
 @app.route("/bookings/<userid>", methods=['GET'])
 def get_booking_for_user(userid):
@@ -26,7 +28,7 @@ def get_booking_for_user(userid):
         if str(booking["userid"]) == str(userid):
             res = booking
             return res
-    return make_response(jsonify({"error":"Movie ID not found"}),400)
+    return make_response(jsonify({"error": "Movie ID not found"}), 400)
 
 
 @app.route("/bookings/<userid>", methods=['POST'])
@@ -74,5 +76,5 @@ def add_booking_byuser(userid):
     return make_response(jsonify({"message": "Booking created"}), 200)
 
 if __name__ == "__main__":
-   print("Server running in port %s"%(PORT))
+   print("Server running in port %s" % PORT)
    app.run(host=HOST, port=PORT)
