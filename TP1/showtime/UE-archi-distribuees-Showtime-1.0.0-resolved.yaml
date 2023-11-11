@@ -1,0 +1,93 @@
+---
+openapi: 3.1.0
+info:
+  title: Showtime API
+  description: This is the API of the Showtime service
+  contact:
+    email: helene.coullon@imt-atlantique.fr
+  license:
+    name: GPL v3
+    url: https://www.gnu.org/licenses/gpl-3.0.en.html
+  version: 1.0.0
+tags:
+- name: admins
+  description: Secured Admin-only calls
+- name: developers
+  description: Operations available to regular developers
+paths:
+  /:
+    get:
+      tags:
+      - developers
+      summary: home page of the service
+      operationId: home
+      responses:
+        "200":
+          description: welcome message
+          content:
+            text/html:
+              schema:
+                type: string
+                example: <h1>Test</h1>
+  /showtimes:
+    get:
+      tags:
+      - developers
+      summary: get the full JSON database
+      operationId: get_schedule
+      responses:
+        "200":
+          description: full JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllSchedule'
+  /showmovies/{date}:
+    get:
+      tags:
+      - developers
+      summary: get the schedule by date
+      operationId: get_movies_bydate
+      parameters:
+      - name: date
+        in: path
+        description: date.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Schedule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schedule'
+        "400":
+          description: bad input parameter
+components:
+  schemas:
+    AllSchedule:
+      required:
+      - schedule
+      type: object
+      properties:
+        schedule:
+          type: array
+          items:
+            $ref: '#/components/schemas/Schedule'
+    Schedule:
+      required:
+      - date
+      - movies
+      type: object
+      properties:
+        date:
+          type: string
+          example: "20151130"
+        movies:
+          type: array
+          items:
+            type: string
+            example: 720d006c-3a57-4b6a-b18f-9b713b073f3c
