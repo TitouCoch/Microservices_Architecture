@@ -33,7 +33,7 @@ def get_booking_for_user(userid):
 
 @app.route("/bookings/<userid>", methods=['POST'])
 def add_booking_byuser(userid):
-    # Récupérer les données JSON de la requête
+    # Recuperer les données JSON de la requête
     body = request.get_json()
     date = body["dates"][0]["date"]
     movie = body["dates"][0]["movies"]

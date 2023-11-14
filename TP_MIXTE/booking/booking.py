@@ -14,38 +14,38 @@ stub = showtime_pb2_grpc.ShowtimeStub(channel)
 
 def get_list_showtime(_stub):
     allshowtimes = _stub.GetListShowtimes(showtime_pb2.EmptyShowTime())
-    print(allshowtimes)
+    bookings_response = []
     for showtime in allshowtimes:
-        print("Showtime %s" % showtime)
+        movie_list = []
+        for movie in showtime.movies:
+            movie_list.append(booking_pb2.Movie(movie=movie.movie))
+        bookings_response.append(booking_pb2.DateData(date=showtime.date, movies=movie_list))
+    return booking_pb2.ShowtimesDataByDate(bookings=bookings_response)
 
 
 def get_showtime_by_date(_stub, date):
-    showtime_date_request = showtime_pb2.ShowtimeDate(date=date)
-    try:
-        showtime_data = _stub.GetShowtimeByDate(showtime_date_request)
-        movie_ids = [movie.movie for movie in showtime_data.movies]
-        print("Showtime data for date:", showtime_data.date)
-        print("Movies:", movie_ids)
-    except grpc.RpcError as e:
-        print("Rpc request failed")
-
+    request = booking_pb2.Date(date=date.date)
+    showtime_movies_response = _stub.GetShowtimeByDate(request)
+    movies = []
+    for movie in showtime_movies_response.movies:
+        movies.append(booking_pb2.Movie(movie=movie.movie))
+    showtime_by_date_data = booking_pb2.DateData(date=date.date, movies=movies)
+    return showtime_by_date_data
 
 def get_showtime_by_movie(_stub, movie):
-    showtime_movie_request = showtime_pb2.ShowtimeMovie(movie=movie)
-    try:
-        showtime_dates_response = _stub.GetShowtimeByMovie(showtime_movie_request)
-        response_message = f"Movie ID {movie} available showtime dates: {list(showtime_dates_response.dates)}"
-        print(response_message)
-    except grpc.RpcError as e:
-        print("Rpc request failed")
+    request = booking_pb2.Movie(movie=movie.movie)
+    showtime_dates_response = _stub.GetShowtimeByMovie(request)
+    print(showtime_dates_response)
+    dates = []
+    for date in showtime_dates_response.dates:
+        dates.append(booking_pb2.Date(date=date))
+    showtime_by_movie_data = booking_pb2.ShowtimeByMovieData(movie=request,dates=dates)
+    return showtime_by_movie_data
 
 
 class BookingServicer(booking_pb2_grpc.BookingServicer):
 
-    #get_list_showtime(stub)
     #get_showtime_by_date(stub, "20151201")
-    #get_showtime_by_movie(stub, "39ab85e5-5e8e-4dc5-afea-65dc368bd7ab")
-
 
     def __init__(self):
         with open('{}/data/bookings.json'.format("."), "r") as jsf:
@@ -70,6 +70,15 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
                 date_data = booking_pb2.DateData(date=date_entry['date'], movies=movie_list)
                 date_data_list.append(date_data)
             yield booking_pb2.BookingData(userid=booking['userid'], dates=date_data_list)
+
+    def GetListShowtimes(self, request, context):
+        return get_list_showtime(stub)
+
+    def GetShowtimeByDate(self, request, context):
+         return get_showtime_by_date(stub, request)
+
+    def GetShowtimeByMovie(self, request, context):
+        return get_showtime_by_movie(stub, request)
 
 
 def serve():

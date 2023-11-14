@@ -10,7 +10,9 @@ app = Flask(__name__)
 
 PORT = 3004
 HOST = '0.0.0.0'
-movie_graphql_service_url = "http://127.0.0.1:3001/graphql"
+movie_graphql_service_url = ("http://127.0.0.1:3001/graphql")
+channel = grpc.insecure_channel('localhost:3002')
+stub = booking_pb2_grpc.BookingStub(channel)
 
 with open('./data/users.json', "r") as jsf:
     users = json.load(jsf)["users"]
@@ -26,34 +28,34 @@ def get_json():
     return make_response(jsonify(users), 200)
 
 
-# Setup the gRPC channel and stub
-channel = grpc.insecure_channel('localhost:3002')
-stub = booking_pb2_grpc.BookingStub(channel)
-
-
-def get_booking_by_user_id(stub, userid):
+@app.route("/user/booking/<userid>", methods=["GET"])
+def get_booking_by_user_id(userid):
     request = booking_pb2.BookingUserId(userid=userid)
     booking = stub.GetBookingByUserID(request)
-    return booking
+    booking_details = {"userid": booking.userid,"dates": []}
+    for date_data in booking.dates:
+        date_details = {"date": date_data.date,"movies": [movie.movie for movie in date_data.movies]}
+        booking_details["dates"].append(date_details)
+    return jsonify(booking_details)
 
 
-def get_list_bookings(stub):
-    allbookings = stub.GetListBookings(booking_pb2.Empty())
+@app.route("/user/list_bookings", methods=["GET"])
+def get_list_bookings():
+    allbookings = stub.GetListBookings(booking_pb2.EmptyBooking())
+    bookings_list = []
     for booking in allbookings:
-        # Print the UserID and associated booking details
-        print("Booking for UserID:", booking.userid)
+        booking_details = {"userid": booking.userid,"dates": []}
         for date_data in booking.dates:
-            print("  Date:", date_data.date)
+            date_details = {"date": date_data.date, "movies": []}
             if date_data.movies:
-                print("    Movies:")
                 for movie in date_data.movies:
-                    print("      -", movie.movie)
-            else:
-                print("    No movies booked for this date.")
-        print()
+                    date_details["movies"].append(movie.movie)
+            booking_details["dates"].append(date_details)
+        bookings_list.append(booking_details)
+    return jsonify(bookings_list)
 
 
-@app.route("/user_info/<userid>", methods=["GET"])
+@app.route("/user/user_info/<userid>", methods=["GET"])
 def get_bookings_details(userid):
     booking_response = get_booking_by_user_id(stub, userid)
     response = []
@@ -67,7 +69,7 @@ def get_bookings_details(userid):
     return make_response(jsonify(response), 200)
 
 
-@app.route("/users/<userid>/<date>", methods=['GET'])
+@app.route("/user/<userid>/<date>", methods=['GET'])
 def get_movies_for_user_and_date(userid, date):
     try:
         booking_response = get_booking_by_user_id(stub, userid)
@@ -81,6 +83,41 @@ def get_movies_for_user_and_date(userid, date):
         return make_response(jsonify(result), 200)
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
+
+
+@app.route("/user/showtimes", methods=['GET'])
+def get_showtimes():
+    allshowtimes = stub.GetListShowtimes(booking_pb2.EmptyBooking())
+    response = []
+    for booking in allshowtimes.bookings:
+        list_movies = []
+        for movie in booking.movies:
+            list_movies.append(movie.movie)
+        response.append({'date': booking.date,'movies': list_movies})
+    return make_response(jsonify(response), 200)
+
+
+@app.route("/user/showtime_by_movie/<movieid>", methods=['GET'])
+def get_showtime_by_movieid(movieid):
+    allshowtimes = stub.GetShowtimeByMovie(booking_pb2.Movie(movie=movieid))
+    response = []
+    dates = []
+    for date in allshowtimes.dates:
+        dates.append(date.date)
+    response.append({'movie': allshowtimes.movie.movie,'dates': dates})
+    return make_response(jsonify(response), 200)
+
+
+@app.route("/user/showtime_by_date/<date>", methods=['GET'])
+def get_showtime_by_date(date):
+    allshowtimes = stub.GetShowtimeByDate(booking_pb2.Date(date=date))
+    print(allshowtimes)
+    response = []
+    movies = []
+    for movie in allshowtimes.movies:
+        movies.append(movie.movie)
+    response.append({'date': allshowtimes.date,'movies': movies})
+    return make_response(jsonify(response), 200)
 
 
 if __name__ == '__main__':

@@ -6,6 +6,8 @@ service Showtime {
     rpc GetShowtimeByMovie(ShowtimeMovie) returns (ShowtimeDates) {}
 }
 
+message EmptyShowTime {}
+
 message ShowtimeDate {
     string date = 1;
 }
@@ -19,13 +21,10 @@ message ShowtimeData {
     repeated Movie_list movies = 2;
 }
 
-message ShowtimeDates {
-  repeated string dates = 1;
-}
-
 message Movie_list {
     string movie = 1;
 }
 
-message EmptyShowTime {
+message ShowtimeDates {
+  repeated string dates = 1;
 }
