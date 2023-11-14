@@ -1,0 +1,165 @@
+---
+openapi: 3.1.0
+info:
+  title: User API
+  description: This is the API of the User service
+  contact:
+    email: titouan.cocheril@imt-atlantique.fr
+  license:
+    name: GPL v3
+    url: https://titoucoch.github.io/
+  version: 1.0.0
+tags:
+- name: admins
+  description: Secured Admin-only calls
+- name: developers
+  description: Operations available to regular developers
+paths:
+  /:
+    get:
+      tags:
+      - developers
+      summary: home page of the service
+      description: |
+        Nothing to do
+      operationId: home
+      responses:
+        "200":
+          description: welcome message
+          content:
+            text/html:
+              schema:
+                type: string
+                example: <h1>Test</h1>
+  /users:
+    get:
+      tags:
+      - developers
+      summary: get the full JSON database
+      description: |
+        Nothing to do
+      operationId: get_json
+      responses:
+        "200":
+          description: full JSON
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllUsers'
+  /users/<userid>/<date>:
+    get:
+      tags:
+        - developers
+      summary: get all movies booked by the user on a given date
+      description: By passing in the appropriate options, you can get bookings of a user on a specific date
+      operationId: get_movies_for_user_and_date
+      parameters:
+      - name: userid
+        in: path
+        description: User ID.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      - name: date
+        in: path
+        description: Date.
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Movies of the user at the date
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllMovies'
+        "400":
+          description: bad input parameter
+
+  /user_info/<userid>:
+    get:
+      tags:
+        - developers
+      summary: get all informations of the movies booked by the user
+      description: By passing in the appropriate options, you can get bookings of a user
+      operationId: get_info_movies_user
+      parameters:
+        - name: userid
+          in: path
+          description: User ID.
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Informations of the Movies of the user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AllMoviesInformations'
+        "400":
+          description: bad input parameter
+
+components:
+  schemas:
+    AllUsers:
+      type: array
+      items:
+        $ref: '#/components/schemas/User'
+    User:
+      required:
+      - id
+      - name
+      - last_active
+      type: object
+      properties:
+        id:
+          type: string
+          example: chris_rivers
+        name:
+          type: string
+          example: Chris Rivers
+        last_active:
+          type: int
+          example: 1360031222
+    AllMovies:
+      type: array
+      items:
+        $ref: '#/components/schemas/Movie'
+    Movie:
+      required:
+        - movieid
+      properties:
+        movieid:
+          type: string
+          example: 276c79ec-a26a-40a6-b3d3-fb242a5947b6
+    AllMoviesInformations:
+      type: array
+      items:
+        $ref: '#/components/schemas/MovieItem'
+    MovieItem:
+      type: object
+      required:
+        - title
+        - rating
+        - director
+        - id
+      properties:
+        title:
+          type: string
+          example: The Martian
+        rating:
+          type: integer
+          example: 7
+        director:
+          type: string
+          example: Paul McGuigan
+        id:
+          type: string
+          example: 39ab85e5-5e8e-4dc5-afea-65dc368bd7ab
