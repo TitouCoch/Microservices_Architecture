@@ -7,8 +7,7 @@ class MovieRepository:
     def __init__(self):
         with open('{}/data/movies.json'.format("."), "r") as file:
             data = json.load(file)
-            for movie in data['movies']:
-                self.movies.append(movie)
+            self.movies = data['movies']
 
     def get_all(self):
         return self.movies
