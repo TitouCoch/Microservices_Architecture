@@ -4,7 +4,7 @@ import json
 import grpc
 import booking_pb2
 import booking_pb2_grpc
-from queries import query_movie_with_id
+from queries import query_movie_with_id, query_movie_name_with_id, query_all_movies
 
 app = Flask(__name__)
 
@@ -24,8 +24,51 @@ def home():
 
 
 @app.route("/users", methods=['GET'])
-def get_json():
+def get_users():
     return make_response(jsonify(users), 200)
+
+
+@app.route("/user/user_by_id/<userid>", methods=['GET'])
+def get_user_by_id(userid):
+    user = next((user for user in users if user["id"] == userid), None)
+    if user:
+        return make_response(jsonify(user), 200)
+    else:
+        return make_response(jsonify({"message": "User not found"}), 404)
+
+
+# MOVIE
+
+@app.route("/user/movies", methods=["GET"])
+def get_movies():
+    movies_response = requests.post(movie_graphql_service_url, json={'query': query_all_movies()})
+    if movies_response.status_code != 200:
+        return make_response(jsonify({"error": "Movie data not found"}), 404)
+    movies_data = movies_response.json()
+    return movies_data
+
+
+@app.route("/user/movie_by_id/<movieid>", methods=["GET"])
+def get_movie_by_id(movieid):
+    movies_response = requests.post(movie_graphql_service_url, json={'query': query_movie_with_id(movieid)})
+    if movies_response.status_code != 200:
+        return make_response(jsonify({"error": "Movie data not found"}), 404)
+    movies_data = movies_response.json()
+    return movies_data
+
+
+@app.route("/user/movie_name_by_id/<movieid>", methods=["GET"])
+def get_movie_name_by_id(movieid):
+    movies_response = requests.post(movie_graphql_service_url, json={'query': query_movie_name_with_id(movieid)})
+    if movies_response.status_code != 200:
+        return make_response(jsonify({"error": "Movie data not found"}), 404)
+    movies_data = movies_response.json()
+    movie_title = movies_data["data"]["movie_with_id"]["title"]
+    print(movie_title)
+    return {"title": movie_title}
+
+
+# BOOKING
 
 
 @app.route("/user/booking/<userid>", methods=["GET"])
@@ -85,6 +128,8 @@ def get_movies_for_user_and_date(userid, date):
         return make_response(jsonify({"error": str(e)}), 500)
 
 
+# TIME
+
 @app.route("/user/showtimes", methods=['GET'])
 def get_showtimes():
     allshowtimes = stub.GetListShowtimes(booking_pb2.EmptyBooking())
@@ -92,7 +137,8 @@ def get_showtimes():
     for booking in allshowtimes.bookings:
         list_movies = []
         for movie in booking.movies:
-            list_movies.append(movie.movie)
+            movie_name = get_movie_name_by_id(movie.movie)
+            list_movies.append(movie_name['title'])
         response.append({'date': booking.date,'movies': list_movies})
     return make_response(jsonify(response), 200)
 
@@ -104,21 +150,21 @@ def get_showtime_by_movieid(movieid):
     dates = []
     for date in allshowtimes.dates:
         dates.append(date.date)
-    response.append({'movie': allshowtimes.movie.movie,'dates': dates})
+    movie_title = get_movie_name_by_id(allshowtimes.movie.movie)['title']
+    response.append({'movie': movie_title,'dates': dates})
     return make_response(jsonify(response), 200)
 
 
 @app.route("/user/showtime_by_date/<date>", methods=['GET'])
 def get_showtime_by_date(date):
     allshowtimes = stub.GetShowtimeByDate(booking_pb2.Date(date=date))
-    print(allshowtimes)
     response = []
     movies = []
     for movie in allshowtimes.movies:
-        movies.append(movie.movie)
+        movie_name = get_movie_name_by_id(movie.movie)
+        movies.append(movie_name['title'])
     response.append({'date': allshowtimes.date,'movies': movies})
     return make_response(jsonify(response), 200)
-
 
 if __name__ == '__main__':
     app.run(host=HOST, port=PORT)

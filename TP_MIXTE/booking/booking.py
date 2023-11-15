@@ -6,7 +6,6 @@ import booking_pb2_grpc
 import showtime_pb2
 import showtime_pb2_grpc
 
-
 # Setup the gRPC channel and stub
 channel = grpc.insecure_channel('localhost:3003')
 stub = showtime_pb2_grpc.ShowtimeStub(channel)
@@ -32,6 +31,7 @@ def get_showtime_by_date(_stub, date):
     showtime_by_date_data = booking_pb2.DateData(date=date.date, movies=movies)
     return showtime_by_date_data
 
+
 def get_showtime_by_movie(_stub, movie):
     request = booking_pb2.Movie(movie=movie.movie)
     showtime_dates_response = _stub.GetShowtimeByMovie(request)
@@ -44,8 +44,6 @@ def get_showtime_by_movie(_stub, movie):
 
 
 class BookingServicer(booking_pb2_grpc.BookingServicer):
-
-    #get_showtime_by_date(stub, "20151201")
 
     def __init__(self):
         with open('{}/data/bookings.json'.format("."), "r") as jsf:
