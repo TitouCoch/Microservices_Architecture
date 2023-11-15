@@ -1,10 +1,11 @@
-from flask import Flask, jsonify, make_response
+from flask import Flask, jsonify, make_response, request
 import requests
 import json
 import grpc
 import booking_pb2
 import booking_pb2_grpc
-from queries import query_movie_with_id, query_movie_name_with_id, query_all_movies
+from queries import query_movie_with_id, query_movie_name_with_id, query_all_movies, mutation_add_movie, \
+    mutation_update_movie, mutation_delete_movie, query_movie_with_title
 
 app = Flask(__name__)
 
@@ -22,6 +23,8 @@ with open('./data/users.json', "r") as jsf:
 def home():
     return "<h1 style='color:blue'>Welcome to the User service!</h1>"
 
+# USER
+
 
 @app.route("/users", methods=['GET'])
 def get_users():
@@ -37,7 +40,40 @@ def get_user_by_id(userid):
         return make_response(jsonify({"message": "User not found"}), 404)
 
 
+@app.route("/user/add_user/<userid>", methods=['POST'])
+def add_user(userid):
+    req = request.get_json()
+    for user in users:
+        if str(user["id"]) == str(userid):
+            return make_response(jsonify({"error": "User ID already exists"}),409)
+    users.append(req)
+    res = make_response(jsonify({"message": "user added"}), 200)
+    return res
+
+
+@app.route("/user/update_user_name/<userid>/<name>", methods=['PUT'])
+def update_user_name(userid, name):
+    for user in users:
+        if str(user["id"]) == str(userid):
+            user["name"] = name
+            res = make_response(jsonify(user), 200)
+            return res
+    res = make_response(jsonify({"error": "user ID not found"}), 201)
+    return res
+
+
+@app.route("/user/delete_user/<userid>", methods=['DELETE'])
+def delete_user(userid):
+    for user in users:
+        if user["id"] == userid:
+            users.remove(user)
+            return make_response(jsonify(user), 200)
+    res = make_response(jsonify({"error": "user ID not found"}), 400)
+    return res
+
+
 # MOVIE
+
 
 @app.route("/user/movies", methods=["GET"])
 def get_movies():
@@ -66,6 +102,37 @@ def get_movie_name_by_id(movieid):
     movie_title = movies_data["data"]["movie_with_id"]["title"]
     print(movie_title)
     return {"title": movie_title}
+
+
+@app.route("/user/add_movie", methods=["POST"])
+def add_movie():
+    movie_data = request.get_json()
+    existing_movie_response = requests.post(movie_graphql_service_url, json={'query': query_movie_with_title(movie_data['title'])})
+    if existing_movie_response.status_code == 200 and existing_movie_response.json().get("data", {}).get("movie_with_title"):
+        return make_response(jsonify({"error": "Movie already exists"}), 409)
+    response = requests.post(movie_graphql_service_url, json={'query': mutation_add_movie(movie_data)})
+    if response.status_code != 200:
+        return make_response(jsonify({"error": "Failed to add movie"}), response.status_code)
+    res = make_response(jsonify({"message": "movie added"}), 200)
+    return res
+
+
+@app.route("/user/update_movie/<movieid>", methods=["POST"])
+def update_movie(movieid):
+    movie_data = request.get_json()
+    new_rating = movie_data.get("rating")
+    response = requests.post(movie_graphql_service_url,json={'query': mutation_update_movie(movieid, new_rating)})
+    if response.status_code != 200:
+        return make_response(jsonify({"error": "Failed to update movie"}), response.status_code)
+    return make_response(jsonify({"message": "Movie updated successfully"}), 200)
+
+
+@app.route("/user/delete_movie/<movieid>", methods=["POST"])
+def delete_movie(movieid):
+    response = requests.post(movie_graphql_service_url, json={'query': mutation_delete_movie(movieid)})
+    if response.status_code != 200:
+        return make_response(jsonify({"error": "Failed to delete movie"}), response.status_code)
+    return make_response(jsonify({"message": "Movie deleted successfully"}), 200)
 
 
 # BOOKING
