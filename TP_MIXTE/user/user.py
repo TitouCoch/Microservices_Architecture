@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 PORT = 3004
 HOST = '0.0.0.0'
-movie_graphql_service_url = ("http://127.0.0.1:3001/graphql")
+movie_graphql_service_url = "http://127.0.0.1:3001/graphql"
 channel = grpc.insecure_channel('localhost:3002')
 stub = booking_pb2_grpc.BookingStub(channel)
 
@@ -45,7 +45,7 @@ def add_user(userid):
     req = request.get_json()
     for user in users:
         if str(user["id"]) == str(userid):
-            return make_response(jsonify({"error": "User ID already exists"}),409)
+            return make_response(jsonify({"error": "User ID already exists"}), 409)
     users.append(req)
     res = make_response(jsonify({"message": "user added"}), 200)
     return res
@@ -107,8 +107,10 @@ def get_movie_name_by_id(movieid):
 @app.route("/user/add_movie", methods=["POST"])
 def add_movie():
     movie_data = request.get_json()
-    existing_movie_response = requests.post(movie_graphql_service_url, json={'query': query_movie_with_title(movie_data['title'])})
-    if existing_movie_response.status_code == 200 and existing_movie_response.json().get("data", {}).get("movie_with_title"):
+    existing_movie_response = requests.post(movie_graphql_service_url,
+                                            json={'query': query_movie_with_title(movie_data['title'])})
+    if (existing_movie_response.status_code == 200 and existing_movie_response.json()
+            .get("data", {}).get("movie_with_title")):
         return make_response(jsonify({"error": "Movie already exists"}), 409)
     response = requests.post(movie_graphql_service_url, json={'query': mutation_add_movie(movie_data)})
     if response.status_code != 200:
@@ -121,7 +123,7 @@ def add_movie():
 def update_movie(movieid):
     movie_data = request.get_json()
     new_rating = movie_data.get("rating")
-    response = requests.post(movie_graphql_service_url,json={'query': mutation_update_movie(movieid, new_rating)})
+    response = requests.post(movie_graphql_service_url, json={'query': mutation_update_movie(movieid, new_rating)})
     if response.status_code != 200:
         return make_response(jsonify({"error": "Failed to update movie"}), response.status_code)
     return make_response(jsonify({"message": "Movie updated successfully"}), 200)
@@ -142,19 +144,19 @@ def delete_movie(movieid):
 def get_booking_by_user_id(userid):
     request = booking_pb2.BookingUserId(userid=userid)
     booking = stub.GetBookingByUserID(request)
-    booking_details = {"userid": booking.userid,"dates": []}
+    booking_details = {"userid": booking.userid, "dates": []}
     for date_data in booking.dates:
-        date_details = {"date": date_data.date,"movies": [movie.movie for movie in date_data.movies]}
+        date_details = {"date": date_data.date, "movies": [movie.movie for movie in date_data.movies]}
         booking_details["dates"].append(date_details)
-    return jsonify(booking_details)
+    return booking_details
 
 
-@app.route("/user/list_bookings", methods=["GET"])
+@app.route("/user/bookings", methods=["GET"])
 def get_list_bookings():
     allbookings = stub.GetListBookings(booking_pb2.EmptyBooking())
     bookings_list = []
     for booking in allbookings:
-        booking_details = {"userid": booking.userid,"dates": []}
+        booking_details = {"userid": booking.userid, "dates": []}
         for date_data in booking.dates:
             date_details = {"date": date_data.date, "movies": []}
             if date_data.movies:
@@ -167,32 +169,57 @@ def get_list_bookings():
 
 @app.route("/user/user_info/<userid>", methods=["GET"])
 def get_bookings_details(userid):
-    booking_response = get_booking_by_user_id(stub, userid)
+    booking_response = get_booking_by_user_id(userid)
     response = []
-    for date_data in booking_response.dates:
+    print(booking_response)
+    for date_data in booking_response['dates']:
         movies_details = []
-        for movie in date_data.movies:
-            graphql_response = requests.post(movie_graphql_service_url, json={'query': query_movie_with_id(movie.movie)})
+        for movie in date_data['movies']:
+            graphql_response = requests.post(movie_graphql_service_url,
+                                             json={'query': query_movie_with_id(movie)})
             movie_data = graphql_response.json()['data']['movie_with_id']
             movies_details.append(movie_data)
-        response.append({'date': date_data.date, 'movies': movies_details})
+        response.append({'date': date_data['date'], 'movies': movies_details})
     return make_response(jsonify(response), 200)
 
 
 @app.route("/user/<userid>/<date>", methods=['GET'])
 def get_movies_for_user_and_date(userid, date):
     try:
-        booking_response = get_booking_by_user_id(stub, userid)
+        booking_response = get_booking_by_user_id(userid)
         result = []
-        for date_data in booking_response.dates:
-            if date_data.date == date:
-                for movie in date_data.movies:
-                    result.append(movie.movie)
+        for date_data in booking_response['dates']:
+            if date_data['date'] == date:
+                for movie in date_data['movies']:
+                    result.append(movie)
         if not result:
             return make_response(jsonify({"error": "No reservations for this date"}), 404)
         return make_response(jsonify(result), 200)
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
+
+
+@app.route("/user/add_booking", methods=["POST"])
+def add_booking():
+    booking_data = request.get_json()
+    date_data_objects = []
+    for date_entry in booking_data['dates']:
+        movie_objects = [booking_pb2.Movie(movie=movie_id) for movie_id in date_entry['movies']]
+        date_data_obj = booking_pb2.DateData(date=date_entry['date'], movies=movie_objects)
+        date_data_objects.append(date_data_obj)
+    grpc_request = booking_pb2.BookingData(userid=booking_data['userid'], dates=date_data_objects)
+    response = stub.AddBooking(grpc_request)
+    return jsonify({"success": response.success, "message": response.message})
+
+
+@app.route("/user/update_booking", methods=["POST"])
+def update_booking():
+    pass
+
+
+@app.route("/user/delete_booking/<userid>/<date>", methods=["DELETE"])
+def delete_booking(userid, date):
+    pass
 
 
 # TIME
@@ -206,7 +233,7 @@ def get_showtimes():
         for movie in booking.movies:
             movie_name = get_movie_name_by_id(movie.movie)
             list_movies.append(movie_name['title'])
-        response.append({'date': booking.date,'movies': list_movies})
+        response.append({'date': booking.date, 'movies': list_movies})
     return make_response(jsonify(response), 200)
 
 
@@ -218,7 +245,7 @@ def get_showtime_by_movieid(movieid):
     for date in allshowtimes.dates:
         dates.append(date.date)
     movie_title = get_movie_name_by_id(allshowtimes.movie.movie)['title']
-    response.append({'movie': movie_title,'dates': dates})
+    response.append({'movie': movie_title, 'dates': dates})
     return make_response(jsonify(response), 200)
 
 
@@ -230,7 +257,7 @@ def get_showtime_by_date(date):
     for movie in allshowtimes.movies:
         movie_name = get_movie_name_by_id(movie.movie)
         movies.append(movie_name['title'])
-    response.append({'date': allshowtimes.date,'movies': movies})
+    response.append({'date': allshowtimes.date, 'movies': movies})
     return make_response(jsonify(response), 200)
 
 if __name__ == '__main__':

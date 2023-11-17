@@ -4,6 +4,9 @@ service Booking {
     rpc GetBookingByUserID(BookingUserId) returns (BookingData) {}
     rpc GetListBookings(EmptyBooking) returns (stream BookingData) {}
     rpc GetListShowtimes(EmptyBooking) returns (ShowtimesDataByDate) {}
+    rpc AddBooking(BookingData) returns (BookingResponse) {}
+    rpc UpdateBooking(BookingData) returns (BookingResponse) {}
+    rpc DeleteBooking(BookingUserId) returns (BookingResponse) {}
     rpc GetShowtimeByMovie(Movie) returns (ShowtimeByMovieData) {}
     rpc GetShowtimeByDate(Date) returns (DateData) {}
 }
@@ -31,6 +34,11 @@ message DateData {
 message ShowtimeByMovieData {
     Movie movie = 1;
     repeated Date dates = 2;
+}
+
+message BookingResponse {
+    bool success = 1;
+    string message = 2;
 }
 
 message Movie {
