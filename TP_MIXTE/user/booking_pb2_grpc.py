@@ -54,6 +54,21 @@ class BookingStub(object):
                 request_serializer=booking__pb2.Date.SerializeToString,
                 response_deserializer=booking__pb2.DateData.FromString,
                 )
+        self.Add_Showtime = channel.unary_unary(
+                '/Booking/Add_Showtime',
+                request_serializer=booking__pb2.DateData.SerializeToString,
+                response_deserializer=booking__pb2.BookingResponse.FromString,
+                )
+        self.Update_Showtime = channel.unary_unary(
+                '/Booking/Update_Showtime',
+                request_serializer=booking__pb2.DateData.SerializeToString,
+                response_deserializer=booking__pb2.BookingResponse.FromString,
+                )
+        self.Delete_Showtime = channel.unary_unary(
+                '/Booking/Delete_Showtime',
+                request_serializer=booking__pb2.Date.SerializeToString,
+                response_deserializer=booking__pb2.BookingResponse.FromString,
+                )
 
 
 class BookingServicer(object):
@@ -107,6 +122,24 @@ class BookingServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def Add_Showtime(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Update_Showtime(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def Delete_Showtime(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_BookingServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -149,6 +182,21 @@ def add_BookingServicer_to_server(servicer, server):
                     servicer.GetShowtimeByDate,
                     request_deserializer=booking__pb2.Date.FromString,
                     response_serializer=booking__pb2.DateData.SerializeToString,
+            ),
+            'Add_Showtime': grpc.unary_unary_rpc_method_handler(
+                    servicer.Add_Showtime,
+                    request_deserializer=booking__pb2.DateData.FromString,
+                    response_serializer=booking__pb2.BookingResponse.SerializeToString,
+            ),
+            'Update_Showtime': grpc.unary_unary_rpc_method_handler(
+                    servicer.Update_Showtime,
+                    request_deserializer=booking__pb2.DateData.FromString,
+                    response_serializer=booking__pb2.BookingResponse.SerializeToString,
+            ),
+            'Delete_Showtime': grpc.unary_unary_rpc_method_handler(
+                    servicer.Delete_Showtime,
+                    request_deserializer=booking__pb2.Date.FromString,
+                    response_serializer=booking__pb2.BookingResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -293,5 +341,56 @@ class Booking(object):
         return grpc.experimental.unary_unary(request, target, '/Booking/GetShowtimeByDate',
             booking__pb2.Date.SerializeToString,
             booking__pb2.DateData.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Add_Showtime(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/Booking/Add_Showtime',
+            booking__pb2.DateData.SerializeToString,
+            booking__pb2.BookingResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Update_Showtime(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/Booking/Update_Showtime',
+            booking__pb2.DateData.SerializeToString,
+            booking__pb2.BookingResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def Delete_Showtime(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/Booking/Delete_Showtime',
+            booking__pb2.Date.SerializeToString,
+            booking__pb2.BookingResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

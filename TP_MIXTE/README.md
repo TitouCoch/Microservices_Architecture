@@ -105,5 +105,34 @@ Requête JSON :
 }
 ```
 
+### Ajouter un Showtime
+
+Endpoint: `POST /user/add_showtime`
+
+Requête JSON :
+```json
+{
+    "date": "20230101",
+    "movie_ids": [
+        "96798c08-d19b-4986-a05d-7da856efb697",
+        "4b96fd92-dec7-4bc4-b6f0-e60055f5c840"
+    ]
+}
+```
+
+
+### Modifier un Showtime
+
+Endpoint: `POST /user/update_showtime`
+
+Requête JSON :
+```json
+{
+    "date": "20230101",
+    "movie_ids": [
+        "b18abb8f-5ac2-494d-9c86-57029e46ca59"
+    ]
+}
+```
 
 

@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0eshowtime.proto\"\x0f\n\rEmptyShowTime\"\x1c\n\x0cShowtimeDate\x12\x0c\n\x04\x64\x61te\x18\x01 \x01(\t\"\x1e\n\rShowtimeMovie\x12\r\n\x05movie\x18\x01 \x01(\t\"9\n\x0cShowtimeData\x12\x0c\n\x04\x64\x61te\x18\x01 \x01(\t\x12\x1b\n\x06movies\x18\x02 \x03(\x0b\x32\x0b.Movie_list\"\x1b\n\nMovie_list\x12\r\n\x05movie\x18\x01 \x01(\t\"\x1e\n\rShowtimeDates\x12\r\n\x05\x64\x61tes\x18\x01 \x03(\t2\xae\x01\n\x08Showtime\x12\x35\n\x10GetListShowtimes\x12\x0e.EmptyShowTime\x1a\r.ShowtimeData\"\x00\x30\x01\x12\x33\n\x11GetShowtimeByDate\x12\r.ShowtimeDate\x1a\r.ShowtimeData\"\x00\x12\x36\n\x12GetShowtimeByMovie\x12\x0e.ShowtimeMovie\x1a\x0e.ShowtimeDates\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0eshowtime.proto\"\x0f\n\rEmptyShowTime\"\x1c\n\x0cShowtimeDate\x12\x0c\n\x04\x64\x61te\x18\x01 \x01(\t\"\x1e\n\rShowtimeMovie\x12\r\n\x05movie\x18\x01 \x01(\t\"9\n\x0cShowtimeData\x12\x0c\n\x04\x64\x61te\x18\x01 \x01(\t\x12\x1b\n\x06movies\x18\x02 \x03(\x0b\x32\x0b.Movie_list\"\x1b\n\nMovie_list\x12\r\n\x05movie\x18\x01 \x01(\t\"\x1e\n\rShowtimeDates\x12\r\n\x05\x64\x61tes\x18\x01 \x03(\t\"3\n\x0fOperationStatus\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07message\x18\x02 \x01(\t2\xca\x02\n\x08Showtime\x12\x35\n\x10GetListShowtimes\x12\x0e.EmptyShowTime\x1a\r.ShowtimeData\"\x00\x30\x01\x12\x33\n\x11GetShowtimeByDate\x12\r.ShowtimeDate\x1a\r.ShowtimeData\"\x00\x12\x36\n\x12GetShowtimeByMovie\x12\x0e.ShowtimeMovie\x1a\x0e.ShowtimeDates\"\x00\x12\x30\n\x0b\x41\x64\x64Showtime\x12\r.ShowtimeData\x1a\x10.OperationStatus\"\x00\x12\x33\n\x0eUpdateShowtime\x12\r.ShowtimeData\x1a\x10.OperationStatus\"\x00\x12\x33\n\x0e\x44\x65leteShowtime\x12\r.ShowtimeDate\x1a\x10.OperationStatus\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,6 +33,8 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_MOVIE_LIST']._serialized_end=183
   _globals['_SHOWTIMEDATES']._serialized_start=185
   _globals['_SHOWTIMEDATES']._serialized_end=215
-  _globals['_SHOWTIME']._serialized_start=218
-  _globals['_SHOWTIME']._serialized_end=392
+  _globals['_OPERATIONSTATUS']._serialized_start=217
+  _globals['_OPERATIONSTATUS']._serialized_end=268
+  _globals['_SHOWTIME']._serialized_start=271
+  _globals['_SHOWTIME']._serialized_end=601
 # @@protoc_insertion_point(module_scope)

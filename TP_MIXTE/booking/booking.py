@@ -10,37 +10,6 @@ channel = grpc.insecure_channel('localhost:3003')
 stub = showtime_pb2_grpc.ShowtimeStub(channel)
 
 
-def get_list_showtime(_stub):
-    allshowtimes = _stub.GetListShowtimes(showtime_pb2.EmptyShowTime())
-    bookings_response = []
-    for showtime in allshowtimes:
-        movie_list = []
-        for movie in showtime.movies:
-            movie_list.append(booking_pb2.Movie(movie=movie.movie))
-        bookings_response.append(booking_pb2.DateData(date=showtime.date, movies=movie_list))
-    return booking_pb2.ShowtimesDataByDate(bookings=bookings_response)
-
-
-def get_showtime_by_date(_stub, date):
-    request = booking_pb2.Date(date=date.date)
-    showtime_movies_response = _stub.GetShowtimeByDate(request)
-    movies = []
-    for movie in showtime_movies_response.movies:
-        movies.append(booking_pb2.Movie(movie=movie.movie))
-    showtime_by_date_data = booking_pb2.DateData(date=date.date, movies=movies)
-    return showtime_by_date_data
-
-
-def get_showtime_by_movie(_stub, movie):
-    request = booking_pb2.Movie(movie=movie.movie)
-    showtime_dates_response = _stub.GetShowtimeByMovie(request)
-    dates = []
-    for date in showtime_dates_response.dates:
-        dates.append(booking_pb2.Date(date=date))
-    showtime_by_movie_data = booking_pb2.ShowtimeByMovieData(movie=request, dates=dates)
-    return showtime_by_movie_data
-
-
 class BookingServicer(booking_pb2_grpc.BookingServicer):
 
     def __init__(self):
@@ -135,13 +104,56 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
     # TIME
 
     def GetListShowtimes(self, request, context):
-        return get_list_showtime(stub)
+        allshowtimes = stub.GetListShowtimes(showtime_pb2.EmptyShowTime())
+        bookings_response = []
+        for showtime in allshowtimes:
+            movie_list = []
+            for movie in showtime.movies:
+                movie_list.append(booking_pb2.Movie(movie=movie.movie))
+            bookings_response.append(booking_pb2.DateData(date=showtime.date, movies=movie_list))
+        return booking_pb2.ShowtimesDataByDate(bookings=bookings_response)
 
     def GetShowtimeByDate(self, request, context):
-         return get_showtime_by_date(stub, request)
+        request_date = booking_pb2.Date(date=request.date)
+        showtime_movies_response = stub.GetShowtimeByDate(request_date)
+        movies = []
+        for movie in showtime_movies_response.movies:
+            movies.append(booking_pb2.Movie(movie=movie.movie))
+        showtime_by_date_data = booking_pb2.DateData(date=request_date.date, movies=movies)
+        return showtime_by_date_data
 
     def GetShowtimeByMovie(self, request, context):
-        return get_showtime_by_movie(stub, request)
+        request_movie = booking_pb2.Movie(movie=request.movie)
+        showtime_dates_response = stub.GetShowtimeByMovie(request_movie)
+        dates = []
+        for date in showtime_dates_response.dates:
+            dates.append(booking_pb2.Date(date=date))
+        showtime_by_movie_data = booking_pb2.ShowtimeByMovieData(movie=request_movie, dates=dates)
+        return showtime_by_movie_data
+
+    def Add_Showtime(self, request, context):
+        date = request.date
+        movie_ids = [movie.movie for movie in request.movies]
+        showtime_data = showtime_pb2.ShowtimeData(date=date)
+        for movie_id in movie_ids:
+            showtime_data.movies.append(showtime_pb2.Movie_list(movie=movie_id))
+        response = stub.AddShowtime(showtime_data)
+        return response
+
+    def Update_Showtime(self, request, context):
+        date = request.date
+        movie_ids = [movie.movie for movie in request.movies]
+        showtime_data = showtime_pb2.ShowtimeData(date=date)
+        for movie_id in movie_ids:
+            showtime_data.movies.append(showtime_pb2.Movie_list(movie=movie_id))
+        response = stub.UpdateShowtime(showtime_data)
+        return response
+
+    def Delete_Showtime(self, request, context):
+        date = request.date
+        showtime_date = showtime_pb2.ShowtimeDate(date=date)
+        response = stub.DeleteShowtime(showtime_date)
+        return response
 
 
 def serve():
@@ -149,6 +161,22 @@ def serve():
     booking_pb2_grpc.add_BookingServicer_to_server(BookingServicer(), server)
     server.add_insecure_port('localhost:3002')
     server.start()
+
+    #Add
+    #date = "20230101"
+    #movie_ids = ["96798c08-d19b-4986-a05d-7da856efb697", "4b96fd92-dec7-4bc4-b6f0-e60055f5c840"]
+
+    #date2 = "20151205"
+    #movie_ids2 = ["39ab85e5-5e8e-4dc5-afea-65dc368bd7ab"]
+
+    #Update
+    #date = "20151130"
+    #new_movie_ids = ["7daf7208-be4d-4944-a3ae-c1c2f516f3e6"]
+    #new_movie_ids = ["wrong_movie"]
+
+    #delete
+    #date = "20230101"
+
     server.wait_for_termination()
 
 
