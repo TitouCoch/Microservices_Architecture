@@ -1,12 +1,15 @@
-from flask import Flask, jsonify, make_response
+from flask import Flask, jsonify, make_response, request
+from flask_cors import CORS, cross_origin
 import requests
 import json
 import grpc
 import booking_pb2
 import booking_pb2_grpc
-from queries import query_movie_with_id
+from queries import *
 
 app = Flask(__name__)
+# Headers to allow CORS
+cors = CORS(app, resources={r"/users/*": {"origins": "*"}})
 
 PORT = 3004
 HOST = '0.0.0.0'
@@ -53,14 +56,15 @@ def get_list_bookings(stub):
         print()
 
 
-@app.route("/user_info/<userid>", methods=["GET"])
+@app.route("/users/<userid>/booking", methods=["GET"])
 def get_bookings_details(userid):
     booking_response = get_booking_by_user_id(stub, userid)
     response = []
     for date_data in booking_response.dates:
         movies_details = []
         for movie in date_data.movies:
-            graphql_response = requests.post(movie_graphql_service_url, json={'query': query_movie_with_id(movie.movie)})
+            graphql_response = requests.post(movie_graphql_service_url,
+                                             json={'query': query_movie_with_id(movie.movie)})
             movie_data = graphql_response.json()['data']['movie_with_id']
             movies_details.append(movie_data)
         response.append({'date': date_data.date, 'movies': movies_details})
@@ -81,6 +85,42 @@ def get_movies_for_user_and_date(userid, date):
         return make_response(jsonify(result), 200)
     except Exception as e:
         return make_response(jsonify({"error": str(e)}), 500)
+
+
+@app.route("/movies", methods=['GET'])
+def get_movies():
+    graphql_response = requests.post(movie_graphql_service_url, json={'query': query_all_movies()})
+    print(graphql_response.json())
+    movies = graphql_response.json()['data']['all_movies']
+    return make_response(jsonify(movies), 200)
+
+
+@app.route("/movies/<movieid>", methods=['GET'])
+def get_movie(movieid):
+    graphql_response = requests.post(movie_graphql_service_url, json={'query': query_movie_with_id(movieid)})
+    movie = graphql_response.json()['data']['movie_with_id']
+    return make_response(jsonify(movie), 200)
+
+
+@app.route("/movies/<movieid>", methods=['DELETE'])
+def delete_movie(movieid):
+    graphql_response = requests.post(movie_graphql_service_url, json={'query': mutation_del_movie_with_id(movieid)})
+    return make_response(jsonify(graphql_response.json()), 200)
+
+
+@app.route("/movies/<movieid>", methods=['PATCH'])
+def update_movie(movieid):
+    rating = request.json['rating']
+    graphql_response = \
+        requests.post(movie_graphql_service_url, json={'query': mutation_update_movie_rate(movieid, rating)})
+    return make_response(jsonify(graphql_response.json()['data']['update_movie_rate']), 200)
+
+
+@app.route("/actors/<actorid>", methods=['GET'])
+def get_actor(actorid):
+    graphql_response = requests.post(movie_graphql_service_url, json={'query': query_actor_with_id(actorid)})
+    actor = graphql_response.json()['data']['actor_with_id']
+    return make_response(jsonify(actor), 200)
 
 
 if __name__ == '__main__':
