@@ -34,6 +34,11 @@
       "id": "dwight_schrute",
       "name": "Dwight Schrute",
       "last_active": 1360031202
+    },
+    {
+      "id": "test",
+      "name": "test",
+      "last_active": 1360031223
     }
   ]
 }

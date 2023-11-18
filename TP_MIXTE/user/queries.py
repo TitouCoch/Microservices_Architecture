@@ -1,5 +1,5 @@
 def query_movie_with_id(movie_id):
-    return """
+    return f"""
     query Movie_with_id {{
         movie_with_id(_id: "{movie_id}") {{
             id
@@ -13,30 +13,21 @@ def query_movie_with_id(movie_id):
                 birthyear
             }}
         }}
-    }}""".format(movie_id=movie_id)
+    }}"""
 
 
-def query_movie_with_title(movie_title):
-    return """
-    query Movie_with_title {{
-        movie_with_title(title: "{movie_title}") {{
-            id
+def query_movie_name_with_id(movie_id):
+    return f"""
+    query Movie_with_id {{
+        movie_with_id(_id: "{movie_id}") {{
             title
-            director
-            rating
-            actors {{
-                id
-                firstname
-                lastname
-                birthyear
-            }}
         }}
-    }}""".format(movie_title=movie_title)
+    }}"""
 
 
 def query_all_movies():
     return """
-    query All_movies {
+    query AllMovies {
         all_movies {
             id
             title
@@ -52,63 +43,46 @@ def query_all_movies():
     }"""
 
 
-def query_actor_with_id(actor_id):
-    return """
-    query actor_with_id {{
-        actor_with_id(_id: "{actor_id}") {{
-            id
-            firstname
-            lastname
-            birthyear
-            films {{
-                id
-                title
-                director
-                rating
-            }}
-        }}
-    }}""".format(actor_id=actor_id)
-
-
-def mutation_update_movie_rate(movie_id, rating):
-    return """    
-    mutation Update_movie_rate {{
-        update_movie_rate(_id: "{movie_id}", _rating: {rating} ) {{
+def mutation_add_movie(movie_input):
+    return f"""
+    mutation {{
+        add_movie(_movie: {{
+            title: "{movie_input['title']}",
+            director: "{movie_input['director']}",
+            rating: {movie_input['rating']}
+        }}) {{
             id
             title
             director
             rating
-            actors {{
-                id
-                firstname
-                lastname
-                birthyear
-            }}
         }}
-    }}""".format(movie_id=movie_id, rating=rating)
+    }}"""
 
 
-def mutation_del_movie_with_id(movie_id):
-    return """mutation Del_movie_with_id {{
+def mutation_update_movie(movie_id, new_rating):
+    return f"""
+    mutation {{
+        update_movie_rate(_id: "{movie_id}", _rating: {new_rating}) {{
+            id
+            title
+            rating
+        }}
+    }}"""
+
+
+def mutation_delete_movie(movie_id):
+    return f"""
+    mutation {{
         del_movie_with_id(_id: "{movie_id}") {{
             id
-            title
-            director
-            rating
-            actors {{
-                id
-                firstname
-                lastname
-                birthyear
-            }}
         }}
-    }}""".format(movie_id=movie_id)
+    }}"""
 
 
-def mutation_add_movie(title, director, rating):
-    return """
-    mutation Add_movie {{
-        add_movie(title: "{title}", director: "{director}", rating: {rating}) {{
+def query_movie_with_title(title):
+    return f"""
+    query {{
+        movie_with_title(_title: "{title}") {{
             id
             title
             director
@@ -120,4 +94,4 @@ def mutation_add_movie(title, director, rating):
                 birthyear
             }}
         }}
-    }}""".format(title=title, director=director, rating=rating)
+    }}"""

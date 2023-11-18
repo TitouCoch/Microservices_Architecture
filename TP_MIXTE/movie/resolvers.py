@@ -47,5 +47,14 @@ def del_movie_with_id(_, info, _id):
 
 
 def add_movie(_, info, _movie):
-    _movie['id'] = str(uuid.uuid4())
-    return movie_repository.add(_movie)
+    with open('{}/data/movies.json'.format("."), "r") as file:
+        movies = json.load(file)
+        for movie in movies['movies']:
+            if str(movie["title"]) == str(_movie["title"]):
+                return movies['movies']
+        movie_uuid = str(uuid.uuid4())
+        _movie["id"] = movie_uuid
+        movies["movies"].append(_movie)
+        with open('{}/data/movies.json'.format("."), "w") as wfile:
+            json.dump(movies, wfile)
+        return movies['movies']
