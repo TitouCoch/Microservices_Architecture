@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.css">
+    <title>Movies</title>
+</head>
+<style>
+
+</style>
+
+<body style="margin: 10px">
+
+<div>
+    <label for="users-select">Connected as : </label>
+    <select class="ui search dropdown" id="users-select" onchange="setUserId(this.value)">
+        <option value="">Select User</option>
+    </select>
+</div>
+
+<div>
+    <div>
+        <h2>My Bookings</h2>
+        <div id="booking-list" class="ui cards">
+        </div>
+    </div>
+</div>
+
+<div>
+    <h2>Available Movies</h2>
+    <div id="movies-list" class="ui cards">
+    </div>
+</div>
+
+<div class="ui modal" id="available-showtimes">
+
+</div>
+</body>
+
+<script
+        src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.js"></script>
+
+<script>
+    $('.ui.dropdown')
+        .dropdown()
+    ;
+    const BASE_URL = 'http://localhost:3004';
+    let USER_ID = null;
+    let BOOKINGS = [];
+    const MOVIES = [];
+    const onLoad = () => {
+        fillUserOptions();
+        fetchMovies()
+    }
+
+    const setUserId = (userId) => {
+        USER_ID = userId;
+        userIdChange();
+    }
+
+    const userIdChange = () => {
+        console.log(USER_ID);
+        fetchBookings();
+    }
+
+    const fillUserOptions = () => {
+        const usersSelect = document.getElementById('users-select');
+        fetch(BASE_URL + '/users').then(response =>
+            response.json()
+        ).then(users => {
+                console.log(users);
+                users.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user.id;
+                    option.innerText = user.name;
+                    usersSelect.appendChild(option);
+                })
+            }
+        );
+    }
+
+    const fetchMovies = () => {
+        fetch(BASE_URL + '/user/movies').then(response =>
+            response.json()
+        ).then(movies => {
+            for (let i = 0; i < movies.length; i++) {
+                const movie = movies[i];
+                MOVIES[movie.id] = movie;
+            }
+            fillMovies();
+        });
+    }
+
+    const fillMovies = () => {
+        const moviesList = document.getElementById('movies-list');
+        moviesList.innerHTML = '';
+        for (let movieId in MOVIES) {
+            const movie = MOVIES[movieId];
+            const movieCard = createMovieCard(movie);
+            moviesList.innerHTML += movieCard;
+        }
+    };
+
+    const createMovieCard = (movie) => {
+        return `<div class="ui card">
+                  <div class="content">
+                    <div class="header">${movie.title}</div>
+                  </div>
+                  <div class="content">
+                    <div>
+                        <i class="user icon"></i>
+                        ${movie.director}
+                        </div>
+                    <div>
+                        <i class="star icon"></i>
+                        ${movie.rating}
+                    </div>
+                  </div>
+                  <div class="extra content">
+                    <button class="ui button" onclick="seeShowtimes('${movie.id}')">See Showtimes</button>
+                  </div>
+                </div>`
+    }
+
+    const seeShowtimes = async (movieId) => {
+        const modal = document.querySelector('.ui.modal');
+        modal.innerHTML = '';
+        modal.innerHTML = await getShowTimesOfMovie(movieId);
+        $('.ui.modal')
+            .modal('show')
+    }
+
+    const getShowTimesOfMovie = async (movieId) => {
+        const showtimes = await fetch(BASE_URL + '/user/showtime_by_movie/' + movieId).then(response =>
+            response.json()
+        ).then(showtimes => {
+            return showtimes[0]['dates'];
+        });
+        return createShowtimesList(showtimes, movieId);
+    }
+
+    const createShowtimesList = (showtimes, movieId) => {
+        let showtimesList = '<div class="header">Available Showtimes for ' + MOVIES[movieId].title + '</div>';
+        showtimesList += '<div class="content">';
+        showtimes.forEach(showtime => {
+            showtimesList += `<div class="ui label" onclick="bookShowtime('${showtime}')"><i class="clock icon"></i>${convertToDate(showtime).toLocaleDateString()} </div>`;
+        });
+        showtimesList += '</div>';
+        return showtimesList;
+    }
+
+    const fetchBookings = () => {
+        fetch(BASE_URL + '/user/booking/'+ USER_ID).then(response =>
+            response.json()
+        ).then(bookings => {
+            BOOKINGS = bookings.dates;
+            fillBookings();
+        });
+    }
+
+    const fillBookings = () => {
+        const bookingList = document.getElementById('booking-list');
+        bookingList.innerHTML = '';
+        let movies;
+        console.log("test :" , BOOKINGS);
+        for (let i = 0; i < BOOKINGS.length; i++) {
+            movies = BOOKINGS[i].movies;
+            console.log("test :" , movies);
+            for (let j = 0; j < movies.length; j++) {
+                console.log(movies[j], BOOKINGS[i].date);
+                const bookingCard = createBookingCard(BOOKINGS[i].date, movies[j]);
+                bookingList.innerHTML += bookingCard;
+            }
+        }
+    }
+
+    const bookShowtime = (date) => {
+        //TODO: book showtime
+    }
+
+    const createBookingCard = (date, movieId) => {
+        return `<div class="card">
+                    <div class="content">
+                      <div class="header">${MOVIES[movieId].title}</div>
+                      <div class="description">
+                           ${convertToDate(date).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div class="ui bottom attached button negative" onclick="cancelBooking(${movieId}, ${date})">
+                      <i class="remove icon"></i>
+                      Cancel Booking
+                    </div>
+                  </div>`
+    }
+
+    const convertToDate = (dateStr) => {
+        const year = dateStr.substring(0,4);
+        const month = dateStr.substring(4,6);
+        const day = dateStr.substring(6,8);
+        return new Date(year, month-1, day);
+    }
+
+    const cancelBooking = (movieId, date) => {
+        // TODO: cancel booking
+    }
+
+
+
+    onLoad();
+</script>
+</html>

@@ -10,7 +10,7 @@ from queries import query_movie_with_id, query_movie_name_with_id, query_all_mov
 
 app = Flask(__name__)
 # Headers to allow CORS
-cors = CORS(app, resources={r"/users/*": {"origins": "*"}})
+cors = CORS(app, resources={r"/user/*": {"origins": "*"}})
 
 PORT = 3004
 HOST = '0.0.0.0'
@@ -83,8 +83,8 @@ def get_movies():
     movies_response = requests.post(movie_graphql_service_url, json={'query': query_all_movies()})
     if movies_response.status_code != 200:
         return make_response(jsonify({"error": "Movie data not found"}), 404)
-    movies_data = movies_response.json()
-    return movies_data
+    response = movies_response.json()['data']['all_movies']
+    return make_response(jsonify(response), 200)
 
 
 @app.route("/user/movie_by_id/<movieid>", methods=["GET"])
@@ -103,7 +103,6 @@ def get_movie_name_by_id(movieid):
         return make_response(jsonify({"error": "Movie data not found"}), 404)
     movies_data = movies_response.json()
     movie_title = movies_data["data"]["movie_with_id"]["title"]
-    print(movie_title)
     return {"title": movie_title}
 
 
