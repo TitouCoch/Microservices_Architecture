@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, make_response, request
+from flask_cors import CORS, cross_origin
 import requests
 import json
 import grpc
@@ -8,6 +9,8 @@ from queries import query_movie_with_id, query_movie_name_with_id, query_all_mov
     mutation_update_movie, mutation_delete_movie, query_movie_with_title
 
 app = Flask(__name__)
+# Headers to allow CORS
+cors = CORS(app, resources={r"/users/*": {"origins": "*"}})
 
 PORT = 3004
 HOST = '0.0.0.0'
@@ -165,6 +168,7 @@ def get_list_bookings():
             booking_details["dates"].append(date_details)
         bookings_list.append(booking_details)
     return jsonify(bookings_list)
+
 
 
 @app.route("/user/user_info/<userid>", methods=["GET"])

@@ -153,4 +153,6 @@ def serve():
 
 
 if __name__ == '__main__':
+    get_list_showtime(stub)
+
     serve()
