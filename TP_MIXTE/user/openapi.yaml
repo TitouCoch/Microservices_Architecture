@@ -1,8 +1,8 @@
 openapi: 3.0.0
 info:
-  title: Movie and User Service API
+  title: User Service API
   version: 1.0.0
-  description: This API manages users, movies, and bookings.
+  description: User End Point manage API manage movies, times and bookings microservices.
 servers:
   - url: http://localhost:3004
     description: Local Development Server
@@ -18,6 +18,8 @@ paths:
             text/html:
               schema:
                 type: string
+
+#User
 
   /users:
     get:
@@ -107,6 +109,8 @@ paths:
         400:
           description: User ID not found
 
+#Movie
+
   /user/movies:
       get:
         summary: Get All Movies
@@ -163,6 +167,33 @@ paths:
         404:
           description: Movie data not found
 
+  /user/{userid}/{date}:
+    get:
+      summary: Get Movies for User on a Specific Date
+      parameters:
+        - name: userid
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        200:
+          description: Returns a list of movies for the user on the given date
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie'
+        404:
+          description: No reservations for this date
+
   /user/add_movie:
     post:
       summary: Add a New Movie
@@ -214,6 +245,8 @@ paths:
         404:
           description: Failed to delete movie
 
+#Booking
+
   /user/booking/{userid}:
     get:
       summary: Get Booking by User ID
@@ -263,32 +296,95 @@ paths:
                 items:
                   $ref: '#/components/schemas/BookingDetail'
 
-  /user/{userid}/{date}:
-    get:
-      summary: Get Movies for User on a Specific Date
+  /user/add_booking:
+    post:
+      summary: Add a New Booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userid:
+                  type: string
+                dates:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/DateData'
+      responses:
+        200:
+          description: Booking added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        400:
+          description: Invalid input
+
+  /user/update_booking:
+    post:
+      summary: Update a Booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userid:
+                  type: string
+                dates:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/DateData'
+      responses:
+        200:
+          description: Booking updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        400:
+          description: Invalid input
+        404:
+          description: Booking not found
+
+  /user/delete_booking/{userid}:
+    delete:
+      summary: Delete a Booking
       parameters:
         - name: userid
           in: path
           required: true
           schema:
             type: string
-        - name: date
-          in: path
-          required: true
-          schema:
-            type: string
-            format: date
       responses:
         200:
-          description: Returns a list of movies for the user on the given date
+          description: Booking deleted successfully
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Movie'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
         404:
-          description: No reservations for this date
+          description: Booking not found
+
+#Showtime
 
   /user/showtimes:
     get:
@@ -415,3 +511,13 @@ components:
           items:
             type: string
 
+    DateData:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        movies:
+          type: array
+          items:
+            type: string

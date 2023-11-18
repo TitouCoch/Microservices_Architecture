@@ -34,7 +34,6 @@ def get_showtime_by_date(_stub, date):
 def get_showtime_by_movie(_stub, movie):
     request = booking_pb2.Movie(movie=movie.movie)
     showtime_dates_response = _stub.GetShowtimeByMovie(request)
-    print(showtime_dates_response)
     dates = []
     for date in showtime_dates_response.dates:
         dates.append(booking_pb2.Date(date=date))
@@ -50,6 +49,8 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
 
     # BOOKING
     def GetBookingByUserID(self, request, context):
+        with open('{}/data/bookings.json'.format("."), "r") as jsf:
+            self.db = json.load(jsf)["bookings"]
         for booking in self.db:
             if booking['userid'] == request.userid:
                 date_data_list = []
@@ -61,6 +62,8 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
         return booking_pb2.BookingData(userid=request.userid)
 
     def GetListBookings(self, request, context):
+        with open('{}/data/bookings.json'.format("."), "r") as jsf:
+            self.db = json.load(jsf)["bookings"]
         for booking in self.db:
             date_data_list = []
             for date_entry in booking['dates']:
@@ -99,9 +102,9 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
 
     def UpdateBooking(self, request, context):
         with open('{}/data/bookings.json'.format("."), "r") as jsf:
-            db = json.load(jsf)
+            self.db = json.load(jsf)
         updated = False
-        for booking in db["bookings"]:
+        for booking in self.db["bookings"]:
             if booking["userid"] == request.userid:
                 for update_date in request.dates:
                     for date in booking["dates"]:
@@ -111,30 +114,26 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
                             break
         if updated:
             with open('{}/data/bookings.json'.format("."), "w") as jsf:
-                json.dump(db, jsf)
+                json.dump(self.db, jsf)
             return booking_pb2.BookingResponse(success=True, message="Booking updated successfully")
         else:
             return booking_pb2.BookingResponse(success=False, message="Booking not found for update")
 
     def DeleteBooking(self, request, context):
         with open('{}/data/bookings.json'.format("."), "r") as jsf:
-            db = json.load(jsf)
-
-        booking_found = False
-        for booking in db["bookings"]:
-            if booking["userid"] == request.userid:
-                booking["dates"] = [d for d in booking["dates"] if d["date"] != request.date]
-                booking_found = True
-                break
-
-        if booking_found:
+            self.db = json.load(jsf)
+        booking_index = next(
+            (i for i, booking in enumerate(self.db["bookings"]) if booking["userid"] == request.userid), None)
+        if booking_index is not None:
+            del self.db["bookings"][booking_index]
             with open('{}/data/bookings.json'.format("."), "w") as jsf:
-                json.dump(db, jsf)
+                json.dump(self.db, jsf)
             return booking_pb2.BookingResponse(success=True, message="Booking deleted successfully")
         else:
             return booking_pb2.BookingResponse(success=False, message="Booking not found for deletion")
 
     # TIME
+
     def GetListShowtimes(self, request, context):
         return get_list_showtime(stub)
 
