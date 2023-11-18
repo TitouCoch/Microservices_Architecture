@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, jsonify, make_response
+from flask import Flask, jsonify, make_response
 import requests
 import json
-from werkzeug.exceptions import NotFound
+
 
 app = Flask(__name__)
 
@@ -80,5 +80,5 @@ def get_movies_for_user_and_date(userid, date):
 
 
 if __name__ == "__main__":
-    print("Server running in port %s" % (PORT))
+    print("Server running in port %s" % PORT)
     app.run(host=HOST, port=PORT)
