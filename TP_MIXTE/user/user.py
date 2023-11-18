@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, make_response, request
+from flask_cors import CORS, cross_origin
 import requests
 import json
 import grpc
@@ -8,6 +9,8 @@ from queries import query_movie_with_id, query_movie_name_with_id, query_all_mov
     mutation_update_movie, mutation_delete_movie, query_movie_with_title
 
 app = Flask(__name__)
+# Headers to allow CORS
+cors = CORS(app, resources={r"/user/*": {"origins": "*"}})
 
 PORT = 3004
 HOST = '0.0.0.0'
@@ -80,8 +83,8 @@ def get_movies():
     movies_response = requests.post(movie_graphql_service_url, json={'query': query_all_movies()})
     if movies_response.status_code != 200:
         return make_response(jsonify({"error": "Movie data not found"}), 404)
-    movies_data = movies_response.json()
-    return movies_data
+    response = movies_response.json()['data']['all_movies']
+    return make_response(jsonify(response), 200)
 
 
 @app.route("/user/movie_by_id/<movieid>", methods=["GET"])
@@ -101,11 +104,9 @@ def get_movie_name_by_id(movieid):
     movie_title = movies_response.json()["data"]["movie_with_id"]["title"]
     return jsonify(movie_title)
 
-
 def is_movie_valid(movie_id):
     response = get_movie_name_by_id(movie_id)
     return response.status_code == 200
-
 
 @app.route("/user/add_movie", methods=["POST"])
 def add_movie():
@@ -168,6 +169,7 @@ def get_list_bookings():
             booking_details["dates"].append(date_details)
         bookings_list.append(booking_details)
     return jsonify(bookings_list)
+
 
 
 @app.route("/user/user_info/<userid>", methods=["GET"])
