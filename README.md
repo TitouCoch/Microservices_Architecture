@@ -1,5 +1,9 @@
 # Microservices Architecture
 
+## Auteurs
+- Titouan Cocheril
+- Elias Morio
+
 ## TPs
 Ces travaux pratiques sont organisés dans le cadre du cours : [Architecture Distribuée](https://helene-coullon.fr/pages/ue-ad-23-24/).
 
