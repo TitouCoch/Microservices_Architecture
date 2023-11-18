@@ -78,13 +78,14 @@ def add_movie(_, info, _movie):
     with open('{}/data/movies.json'.format("."), "r") as file:
         movies = json.load(file)
         for movie in movies['movies']:
-            if str(movie["title"]) != str(_movie["title"]):
-                movie_uuid = str(uuid.uuid4())
-                _movie["id"] = movie_uuid
-                movies["movies"].append(_movie)
-    with open('{}/data/movies.json'.format("."), "w") as wfile:
-        json.dump(movies, wfile)
-    return movies['movies']
+            if str(movie["title"]) == str(_movie["title"]):
+                return movies['movies']
+        movie_uuid = str(uuid.uuid4())
+        _movie["id"] = movie_uuid
+        movies["movies"].append(_movie)
+        with open('{}/data/movies.json'.format("."), "w") as wfile:
+            json.dump(movies, wfile)
+        return movies['movies']
 
 
 

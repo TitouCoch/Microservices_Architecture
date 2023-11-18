@@ -1,0 +1,523 @@
+openapi: 3.0.0
+info:
+  title: User Service API
+  version: 1.0.0
+  description: User End Point manage API manage movies, times and bookings microservices.
+servers:
+  - url: http://localhost:3004
+    description: Local Development Server
+
+paths:
+  /:
+    get:
+      summary: Welcome Message
+      responses:
+        200:
+          description: Returns a welcome message
+          content:
+            text/html:
+              schema:
+                type: string
+
+#User
+
+  /users:
+    get:
+      summary: Get All Users
+      responses:
+        200:
+          description: Returns a list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /user/user_by_id/{userid}:
+    get:
+      summary: Get User by ID
+      parameters:
+        - name: userid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns the user details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        404:
+          description: User not found
+
+  /user/add_user/{userid}:
+    post:
+      summary: Add a New User
+      parameters:
+        - name: userid
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          description: User added successfully
+        409:
+          description: User ID already exists
+
+  /user/update_user_name/{userid}/{name}:
+    put:
+      summary: Update a User's Name
+      parameters:
+        - name: userid
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: User name updated successfully
+        201:
+          description: User ID not found
+
+  /user/delete_user/{userid}:
+    delete:
+      summary: Delete a User
+      parameters:
+        - name: userid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: User deleted successfully
+        400:
+          description: User ID not found
+
+#Movie
+
+  /user/movies:
+      get:
+        summary: Get All Movies
+        responses:
+          200:
+            description: Returns a list of movies
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Movie'
+          404:
+            description: Movie data not found
+
+  /user/movie_by_id/{movieid}:
+    get:
+      summary: Get Movie by ID
+      parameters:
+        - name: movieid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns movie details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Movie'
+        404:
+          description: Movie data not found
+
+  /user/movie_name_by_id/{movieid}:
+    get:
+      summary: Get Movie Name by ID
+      parameters:
+        - name: movieid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns the movie title
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+        404:
+          description: Movie data not found
+
+  /user/{userid}/{date}:
+    get:
+      summary: Get Movies for User on a Specific Date
+      parameters:
+        - name: userid
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        200:
+          description: Returns a list of movies for the user on the given date
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Movie'
+        404:
+          description: No reservations for this date
+
+  /user/add_movie:
+    post:
+      summary: Add a New Movie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieInput'
+      responses:
+        200:
+          description: Movie added successfully
+        409:
+          description: Movie already exists
+
+  /user/update_movie/{movieid}:
+    post:
+      summary: Update a Movie
+      parameters:
+        - name: movieid
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MovieInput'
+      responses:
+        200:
+          description: Movie updated successfully
+        404:
+          description: Failed to update movie
+
+  /user/delete_movie/{movieid}:
+    post:
+      summary: Delete a Movie
+      parameters:
+        - name: movieid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Movie deleted successfully
+        404:
+          description: Failed to delete movie
+
+#Booking
+
+  /user/booking/{userid}:
+    get:
+      summary: Get Booking by User ID
+      parameters:
+        - name: userid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns booking details for the user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+
+  /user/list_bookings:
+    get:
+      summary: Get List of All Bookings
+      responses:
+        200:
+          description: Returns a list of all bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+
+  /user/user_info/{userid}:
+    get:
+      summary: Get Bookings Details for a User
+      parameters:
+        - name: userid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns detailed booking information for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BookingDetail'
+
+  /user/add_booking:
+    post:
+      summary: Add a New Booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userid:
+                  type: string
+                dates:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/DateData'
+      responses:
+        200:
+          description: Booking added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        400:
+          description: Invalid input
+
+  /user/update_booking:
+    post:
+      summary: Update a Booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userid:
+                  type: string
+                dates:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/DateData'
+      responses:
+        200:
+          description: Booking updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        400:
+          description: Invalid input
+        404:
+          description: Booking not found
+
+  /user/delete_booking/{userid}:
+    delete:
+      summary: Delete a Booking
+      parameters:
+        - name: userid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Booking deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        404:
+          description: Booking not found
+
+#Showtime
+
+  /user/showtimes:
+    get:
+      summary: Get All Showtimes
+      responses:
+        200:
+          description: Returns a list of all showtimes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Showtime'
+
+  /user/showtime_by_movie/{movieid}:
+    get:
+      summary: Get Showtime by Movie ID
+      parameters:
+        - name: movieid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Returns showtime details for the movie
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Showtime'
+
+  /user/showtime_by_date/{date}:
+    get:
+      summary: Get Showtime by Date
+      parameters:
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        200:
+          description: Returns showtime details for the specified date
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Showtime'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+
+    Movie:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        genre:
+          type: string
+        director:
+          type: string
+
+    MovieInput:
+      type: object
+      properties:
+        title:
+          type: string
+        genre:
+          type: string
+        director:
+          type: string
+
+    Booking:
+      type: object
+      properties:
+        userid:
+          type: string
+        dates:
+          type: array
+          items:
+            $ref: '#/components/schemas/DateDetail'
+
+    BookingDetail:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        movies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Movie'
+
+    Showtime:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        movies:
+          type: array
+          items:
+            $ref: '#/components/schemas/Movie'
+
+    DateDetail:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        movies:
+          type: array
+          items:
+            type: string
+
+    DateData:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        movies:
+          type: array
+          items:
+            type: string
