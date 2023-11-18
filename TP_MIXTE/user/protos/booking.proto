@@ -9,6 +9,9 @@ service Booking {
     rpc DeleteBooking(BookingUserId) returns (BookingResponse) {}
     rpc GetShowtimeByMovie(Movie) returns (ShowtimeByMovieData) {}
     rpc GetShowtimeByDate(Date) returns (DateData) {}
+    rpc Add_Showtime(DateData) returns (BookingResponse) {}
+    rpc Update_Showtime(DateData) returns (BookingResponse) {}
+    rpc Delete_Showtime(Date) returns (BookingResponse) {}
 }
 
 message EmptyBooking {}

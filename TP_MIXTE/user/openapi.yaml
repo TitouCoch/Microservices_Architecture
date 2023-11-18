@@ -434,6 +434,82 @@ paths:
               schema:
                 $ref: '#/components/schemas/Showtime'
 
+  /user/add_showtime:
+    post:
+      summary: Add a New Showtime
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DateData'
+      responses:
+        200:
+          description: Showtime added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        400:
+          description: Invalid input
+
+  /user/update_showtime:
+    post:
+      summary: Update a Showtime
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DateData'
+      responses:
+        200:
+          description: Showtime updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        400:
+          description: Invalid input
+        404:
+          description: Showtime not found
+
+  /user/delete_showtime/{date}:
+    delete:
+      summary: Delete a Showtime
+      parameters:
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        200:
+          description: Showtime deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        404:
+          description: Showtime not found
+
+#Components
 components:
   schemas:
     User:

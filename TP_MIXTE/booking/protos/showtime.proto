@@ -4,6 +4,9 @@ service Showtime {
     rpc GetListShowtimes(EmptyShowTime) returns (stream ShowtimeData) {}
     rpc GetShowtimeByDate(ShowtimeDate) returns (ShowtimeData) {}
     rpc GetShowtimeByMovie(ShowtimeMovie) returns (ShowtimeDates) {}
+    rpc AddShowtime(ShowtimeData) returns (OperationStatus) {}
+    rpc UpdateShowtime(ShowtimeData) returns (OperationStatus) {}
+    rpc DeleteShowtime(ShowtimeDate) returns (OperationStatus) {}
 }
 
 message EmptyShowTime {}
@@ -27,4 +30,9 @@ message Movie_list {
 
 message ShowtimeDates {
   repeated string dates = 1;
+}
+
+message OperationStatus {
+    bool success = 1;
+    string message = 2;
 }

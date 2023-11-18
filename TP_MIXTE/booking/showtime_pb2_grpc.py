@@ -29,6 +29,21 @@ class ShowtimeStub(object):
                 request_serializer=showtime__pb2.ShowtimeMovie.SerializeToString,
                 response_deserializer=showtime__pb2.ShowtimeDates.FromString,
                 )
+        self.AddShowtime = channel.unary_unary(
+                '/Showtime/AddShowtime',
+                request_serializer=showtime__pb2.ShowtimeData.SerializeToString,
+                response_deserializer=showtime__pb2.OperationStatus.FromString,
+                )
+        self.UpdateShowtime = channel.unary_unary(
+                '/Showtime/UpdateShowtime',
+                request_serializer=showtime__pb2.ShowtimeData.SerializeToString,
+                response_deserializer=showtime__pb2.OperationStatus.FromString,
+                )
+        self.DeleteShowtime = channel.unary_unary(
+                '/Showtime/DeleteShowtime',
+                request_serializer=showtime__pb2.ShowtimeDate.SerializeToString,
+                response_deserializer=showtime__pb2.OperationStatus.FromString,
+                )
 
 
 class ShowtimeServicer(object):
@@ -52,6 +67,24 @@ class ShowtimeServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def AddShowtime(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def UpdateShowtime(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteShowtime(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_ShowtimeServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -69,6 +102,21 @@ def add_ShowtimeServicer_to_server(servicer, server):
                     servicer.GetShowtimeByMovie,
                     request_deserializer=showtime__pb2.ShowtimeMovie.FromString,
                     response_serializer=showtime__pb2.ShowtimeDates.SerializeToString,
+            ),
+            'AddShowtime': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddShowtime,
+                    request_deserializer=showtime__pb2.ShowtimeData.FromString,
+                    response_serializer=showtime__pb2.OperationStatus.SerializeToString,
+            ),
+            'UpdateShowtime': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateShowtime,
+                    request_deserializer=showtime__pb2.ShowtimeData.FromString,
+                    response_serializer=showtime__pb2.OperationStatus.SerializeToString,
+            ),
+            'DeleteShowtime': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteShowtime,
+                    request_deserializer=showtime__pb2.ShowtimeDate.FromString,
+                    response_serializer=showtime__pb2.OperationStatus.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -128,5 +176,56 @@ class Showtime(object):
         return grpc.experimental.unary_unary(request, target, '/Showtime/GetShowtimeByMovie',
             showtime__pb2.ShowtimeMovie.SerializeToString,
             showtime__pb2.ShowtimeDates.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def AddShowtime(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/Showtime/AddShowtime',
+            showtime__pb2.ShowtimeData.SerializeToString,
+            showtime__pb2.OperationStatus.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def UpdateShowtime(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/Showtime/UpdateShowtime',
+            showtime__pb2.ShowtimeData.SerializeToString,
+            showtime__pb2.OperationStatus.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def DeleteShowtime(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/Showtime/DeleteShowtime',
+            showtime__pb2.ShowtimeDate.SerializeToString,
+            showtime__pb2.OperationStatus.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
