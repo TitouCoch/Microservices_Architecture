@@ -237,7 +237,7 @@ paths:
       tags:
         - user
         - booking
-      summary: Get Booking by User ID
+      summary: Get Booking from user
       parameters:
         - name: userid
           in: path
