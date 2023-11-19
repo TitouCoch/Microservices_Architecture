@@ -6,7 +6,7 @@ import booking_pb2_grpc
 import showtime_pb2
 import showtime_pb2_grpc
 
-channel = grpc.insecure_channel('localhost:3003')
+channel = grpc.insecure_channel('showtime:3003')
 stub = showtime_pb2_grpc.ShowtimeStub(channel)
 
 
@@ -159,24 +159,8 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     booking_pb2_grpc.add_BookingServicer_to_server(BookingServicer(), server)
-    server.add_insecure_port('localhost:3002')
+    server.add_insecure_port('0.0.0.0:3002')
     server.start()
-
-    #Add
-    #date = "20230101"
-    #movie_ids = ["96798c08-d19b-4986-a05d-7da856efb697", "4b96fd92-dec7-4bc4-b6f0-e60055f5c840"]
-
-    #date2 = "20151205"
-    #movie_ids2 = ["39ab85e5-5e8e-4dc5-afea-65dc368bd7ab"]
-
-    #Update
-    #date = "20151130"
-    #new_movie_ids = ["7daf7208-be4d-4944-a3ae-c1c2f516f3e6"]
-    #new_movie_ids = ["wrong_movie"]
-
-    #delete
-    #date = "20230101"
-
     server.wait_for_termination()
 
 

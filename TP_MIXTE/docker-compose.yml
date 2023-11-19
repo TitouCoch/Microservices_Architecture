@@ -1,0 +1,26 @@
+version: '3'
+services:
+  user:
+    build: ./user
+    ports:
+      - "3004:3004"
+    depends_on:
+      - booking
+
+  movie:
+    build: ./movie
+    ports:
+      - "3001:3001"
+
+  showtime:
+    build: ./showtime
+    ports:
+      - "3003:3003"
+
+  booking:
+    build: ./booking
+    ports:
+      - "3002:3002"
+    depends_on:
+      - showtime
+

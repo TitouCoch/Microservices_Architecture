@@ -25,6 +25,12 @@ Ce projet implémente une API pour gérer les utilisateurs, les films, les dates
 pip install -r requirements.txt
 ```
 
+3. **Lancement des microservices avec Docker**
+   Utilisez Docker Compose pour construire et démarrer les microservices. Exécutez la commande suivante :
+
+```shell
+docker-compose up --build
+```
 
 ### Documentation API
 

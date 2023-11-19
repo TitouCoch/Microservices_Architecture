@@ -14,9 +14,9 @@ cors = CORS(app, resources={r"/user/*": {"origins": "*"}})
 
 PORT = 3004
 HOST = '0.0.0.0'
-movie_graphql_service_url = "http://127.0.0.1:3001/graphql"
+movie_graphql_service_url = "http://movie:3001/graphql"
 
-channel = grpc.insecure_channel('localhost:3002')
+channel = grpc.insecure_channel('booking:3002')
 stub = booking_pb2_grpc.BookingStub(channel)
 
 with open('./data/users.json', "r") as jsf:
@@ -29,7 +29,6 @@ def home():
 
 
 # USER
-
 
 @app.route("/users", methods=['GET'])
 def get_users():
@@ -143,7 +142,6 @@ def delete_movie(movieid):
 
 # BOOKING
 
-
 @app.route("/user/booking/<userid>", methods=["GET"])
 def get_booking_by_user_id(userid):
     response = booking_pb2.BookingUserId(userid=userid)
@@ -169,7 +167,6 @@ def get_list_bookings():
             booking_details["dates"].append(date_details)
         bookings_list.append(booking_details)
     return jsonify(bookings_list)
-
 
 
 @app.route("/user/user_info/<userid>", methods=["GET"])
