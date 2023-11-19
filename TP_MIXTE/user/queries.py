@@ -1,3 +1,5 @@
+import json
+
 def query_movie_with_id(movie_id):
     return f"""
     query Movie_with_id {{
@@ -55,6 +57,12 @@ def mutation_add_movie(movie_input):
             title
             director
             rating
+            actors {{
+                id
+                firstname
+                lastname
+                birthyear
+            }}
         }}
     }}"""
 
@@ -66,6 +74,12 @@ def mutation_update_movie(movie_id, new_rating):
             id
             title
             rating
+            actors {{
+                id
+                firstname
+                lastname
+                birthyear
+            }}
         }}
     }}"""
 

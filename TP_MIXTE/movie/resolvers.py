@@ -46,15 +46,26 @@ def del_movie_with_id(_, info, _id):
     return movie_repository.delete(_id)
 
 
-def add_movie(_, info, _movie):
-    with open('{}/data/movies.json'.format("."), "r") as file:
-        movies = json.load(file)
-        for movie in movies['movies']:
-            if str(movie["title"]) == str(_movie["title"]):
-                return movies['movies']
-        movie_uuid = str(uuid.uuid4())
-        _movie["id"] = movie_uuid
-        movies["movies"].append(_movie)
-        with open('{}/data/movies.json'.format("."), "w") as wfile:
-            json.dump(movies, wfile)
-        return movies['movies']
+def add_a_movie(_, info, _movie):
+    new_movie = movie_repository.add({
+        "id": str(uuid.uuid4()),
+        "title": _movie['title'],
+        "director": _movie['director'],
+        "rating": _movie['rating']
+    })
+
+    # Not used
+    # if _movie['actors'] is not None:
+    #     for actor in _movie['actors']:
+    #         res = actor_repository.exist(actor)
+    #         if res is False:
+    #             actor_repository.add({
+    #                 "id": str(uuid.uuid4()),
+    #                 "firstname": actor['firstname'],
+    #                 "lastname": actor['lastname'],
+    #                 "birthyear": actor['birthyear'],
+    #                 "films": [new_movie['id']]
+    #             })
+    #         else:
+    #             actor_repository.add_movie(res['id'], new_movie['id'])
+    return new_movie

@@ -16,7 +16,7 @@ class MovieRepository:
         for movie in self.movies:
             if movie[field] == value:
                 return movie
-        raise Exception("Movie not found")
+        return None
 
     def add(self, movie):
         self.movies.append(movie)
