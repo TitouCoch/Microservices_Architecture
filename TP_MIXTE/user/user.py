@@ -14,9 +14,9 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 PORT = 3004
 HOST = '0.0.0.0'
-movie_graphql_service_url = "http://127.0.0.1:3001/graphql"
+movie_graphql_service_url = "http://movie:3001/graphql"
 
-channel = grpc.insecure_channel('localhost:3002')
+channel = grpc.insecure_channel('booking:3002')
 stub = booking_pb2_grpc.BookingStub(channel)
 
 userRepository = UserRepository()
@@ -28,7 +28,6 @@ def home():
 
 
 # USER
-
 
 @app.route("/users", methods=['GET'])
 def get_users():
