@@ -1,9 +1,6 @@
-import uuid
-
 from flask import Flask, jsonify, make_response, request
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 import requests
-import json
 import grpc
 import booking_pb2
 import booking_pb2_grpc
@@ -290,7 +287,7 @@ def get_showtime_by_movieid(movieid):
     return make_response(jsonify(response), 200)
 
 
-@app.route("/movies/{movieid}/showtimes", methods=['POST'])
+@app.route("/showtimes", methods=['POST'])
 def add_showtime():
     showtime_data = request.get_json()
     date = showtime_data['date']
@@ -303,12 +300,12 @@ def add_showtime():
     return make_response(jsonify(response_dict), 200)
 
 
-@app.route("/movies/{movieid}/showtimes", methods=['PUT'])
+@app.route("/showtimes", methods=['PUT'])
 def update_showtime():
-    date = request.args.get('date')
+    showtime_data = request.get_json()
+    date = showtime_data['date']
     if not date:
         return make_response(jsonify({"error": "No date provided"}), 400)
-    showtime_data = request.get_json()
     movie_ids = showtime_data['movie_ids']
     valid_movie_ids = [movie_id for movie_id in movie_ids if is_movie_valid(movie_id)]
     movie_list = [booking_pb2.Movie(movie=movie_id) for movie_id in valid_movie_ids]
@@ -318,8 +315,11 @@ def update_showtime():
     return make_response(jsonify(response_dict), 200)
 
 
-@app.route("/movies/{movieid}/showtimes", methods=['DELETE'])
+@app.route("/showtimes", methods=['DELETE'])
 def delete_showtime_from_booking():
+    date = request.json().get('date')
+    if not date:
+        return make_response(jsonify({"error": "No date provided"}), 400)
     date_obj = booking_pb2.Date(date=date)
     response = stub.Delete_Showtime(date_obj)
     response_dict = {"success": response.success, "message": response.message}
