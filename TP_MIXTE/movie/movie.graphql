@@ -31,11 +31,11 @@ input MovieInput {
     title: String!,
     director: String!,
     rating: Float!
-    actors: [ActorInput]
 }
 
+#not used
 input ActorInput {
-    id: String,
+
     firstname: String!,
     lastname: String!,
     birthyear: Int!

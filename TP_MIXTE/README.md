@@ -28,7 +28,7 @@ pip install -r requirements.txt
 
 ### Documentation API
 
-Consultez la documentation complète de l'API dans le fichier OpenAPI : [openapi.yaml](./user/openapi.yaml)
+Consultez la documentation complète de l'API dans le fichier OpenAPI : [openapi.yaml](./user/openapi-rest-endpoints.yaml)
 
 ## Test des Endpoints avec Postman
 

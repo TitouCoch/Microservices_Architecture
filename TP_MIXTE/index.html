@@ -82,7 +82,7 @@
     }
 
     const fetchMovies = () => {
-        fetch(BASE_URL + '/user/movies').then(response =>
+        fetch(BASE_URL + '/movies').then(response =>
             response.json()
         ).then(movies => {
             for (let i = 0; i < movies.length; i++) {
@@ -133,7 +133,7 @@
     }
 
     const getShowTimesOfMovie = async (movieId) => {
-        const showtimes = await fetch(BASE_URL + '/user/showtime_by_movie/' + movieId).then(response =>
+        const showtimes = await fetch(BASE_URL + '/movies/' + movieId + '/showtimes').then(response =>
             response.json()
         ).then(showtimes => {
             return showtimes[0]['dates'];
