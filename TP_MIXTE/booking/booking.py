@@ -6,7 +6,7 @@ import booking_pb2_grpc
 import showtime_pb2
 import showtime_pb2_grpc
 
-channel = grpc.insecure_channel('showtime:3003')
+channel = grpc.insecure_channel('localhost:3003')
 stub = showtime_pb2_grpc.ShowtimeStub(channel)
 
 
@@ -44,6 +44,19 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
     def AddBooking(self, request, context):
         with open('{}/data/bookings.json'.format("."), "r") as jsf:
             self.db = json.load(jsf)
+        # ensure that a showtime exists at each date for each movie
+        for date_data in request.dates:
+            showtime_by_date = stub.GetShowtimeByDate(booking_pb2.Date(date=date_data.date))
+            movies_ids = [movie.movie for movie in showtime_by_date.movies]
+            print(showtime_by_date)
+            if not showtime_by_date.movies:
+                return booking_pb2.BookingResponse(success=False, message="No showtime found for date {}".format(
+                    date_data.date))
+            for movie in date_data.movies:
+                if movie.movie not in movies_ids:
+                    return booking_pb2.BookingResponse(success=False, message="No showtime found for movie {} on "
+                                                                              "date {}".format(movie.movie,
+                                                                                                date_data.date))
         new_booking = {
             "userid": request.userid,
             "dates": [
@@ -91,15 +104,24 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
     def DeleteBooking(self, request, context):
         with open('{}/data/bookings.json'.format("."), "r") as jsf:
             self.db = json.load(jsf)
-        booking_index = next(
-            (i for i, booking in enumerate(self.db["bookings"]) if booking["userid"] == request.userid), None)
-        if booking_index is not None:
-            del self.db["bookings"][booking_index]
-            with open('{}/data/bookings.json'.format("."), "w") as jsf:
-                json.dump(self.db, jsf)
-            return booking_pb2.BookingResponse(success=True, message="Booking deleted successfully")
-        else:
-            return booking_pb2.BookingResponse(success=False, message="Booking not found for deletion")
+        print(request)
+        for booking in self.db["bookings"]:
+            if booking["userid"] == request.userid:
+                for delete_date in request.dates:
+                    for date in booking["dates"]:
+                        if date["date"] == delete_date.date:
+                            movies_ids_to_delete = []
+                            for movie in delete_date.movies:
+                                if movie.movie not in date["movies"]:
+                                    return booking_pb2.BookingResponse(success=False, message="Booking not found for "
+                                                                                              "deletion")
+                                movies_ids_to_delete.append(movie.movie)
+                            movies_ids = [movieId for movieId in date["movies"] if movieId not in movies_ids_to_delete]
+                            date["movies"] = movies_ids
+                            with open('{}/data/bookings.json'.format("."), "w") as jsf:
+                                json.dump(self.db, jsf)
+                            return booking_pb2.BookingResponse(success=True, message="Booking deleted successfully")
+        return booking_pb2.BookingResponse(success=False, message="Booking not found for deletion")
 
     # TIME
 

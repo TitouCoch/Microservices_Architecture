@@ -16,6 +16,7 @@ tags:
   - name: booking
     description: Operations to book a showtime for a user
 
+
 paths:
   /:
     get:
@@ -235,7 +236,6 @@ paths:
   /users/{userid}/bookings:
     get:
       tags:
-        - user
         - booking
       summary: Get Booking from user
       parameters:
@@ -255,7 +255,6 @@ paths:
           description: Booking not found
     post:
       tags:
-       - user
        - booking
       summary: Add a booking for a user
       parameters:
@@ -280,6 +279,31 @@ paths:
           description: Booking added
         400:
           description: No Showtimes for this movie and date
+    delete:
+      tags:
+        - booking
+      summary: delete a booking of a user
+      parameters:
+        - name: userid
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: movieId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Booking Deleted
+        400:
+          description: Booking not found
 
 
   /showtimes:
@@ -309,7 +333,6 @@ paths:
   /movies/{movieid}/showtimes:
     get:
       tags:
-        - movie
         - showtime
       summary: Get Showtimes of a Movie
       parameters:
@@ -330,7 +353,6 @@ paths:
     delete:
       tags:
         - showtime
-        - movie
       summary: Delete a Showtime of a movie
       parameters:
         - name: movieid
@@ -340,7 +362,7 @@ paths:
             type: string
         - name: date
           in: query
-          required: false
+          required: true
           schema:
             type: string
             format: date
