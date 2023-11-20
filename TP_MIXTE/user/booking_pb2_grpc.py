@@ -41,7 +41,7 @@ class BookingStub(object):
                 )
         self.DeleteBooking = channel.unary_unary(
                 '/Booking/DeleteBooking',
-                request_serializer=booking__pb2.BookingUserId.SerializeToString,
+                request_serializer=booking__pb2.BookingData.SerializeToString,
                 response_deserializer=booking__pb2.BookingResponse.FromString,
                 )
         self.GetShowtimeByMovie = channel.unary_unary(
@@ -111,7 +111,8 @@ class BookingServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def GetShowtimeByMovie(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Showtime service methods
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -170,7 +171,7 @@ def add_BookingServicer_to_server(servicer, server):
             ),
             'DeleteBooking': grpc.unary_unary_rpc_method_handler(
                     servicer.DeleteBooking,
-                    request_deserializer=booking__pb2.BookingUserId.FromString,
+                    request_deserializer=booking__pb2.BookingData.FromString,
                     response_serializer=booking__pb2.BookingResponse.SerializeToString,
             ),
             'GetShowtimeByMovie': grpc.unary_unary_rpc_method_handler(
@@ -305,7 +306,7 @@ class Booking(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/Booking/DeleteBooking',
-            booking__pb2.BookingUserId.SerializeToString,
+            booking__pb2.BookingData.SerializeToString,
             booking__pb2.BookingResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

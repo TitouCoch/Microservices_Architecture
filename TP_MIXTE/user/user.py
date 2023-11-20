@@ -14,9 +14,9 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
 PORT = 3004
 HOST = '0.0.0.0'
-movie_graphql_service_url = "http://movie:3001/graphql"
+movie_graphql_service_url = "http://localhost:3001/graphql"
 
-channel = grpc.insecure_channel('booking:3002')
+channel = grpc.insecure_channel('localhost:3002')
 stub = booking_pb2_grpc.BookingStub(channel)
 
 userRepository = UserRepository()
@@ -138,10 +138,13 @@ def delete_movie(movieid):
 
 @app.route("/users/<userid>/bookings", methods=["GET"])
 def get_booking_by_user_id(userid):
+    date = request.args.get('date')
     response = booking_pb2.BookingUserId(userid=userid)
     booking = stub.GetBookingByUserID(response)
     booking_details = {"userid": booking.userid, "dates": []}
     for date_data in booking.dates:
+        if date and date_data.date != date:
+            continue
         date_details = {"date": date_data.date, "movies": [movie.movie for movie in date_data.movies]}
         booking_details["dates"].append(date_details)
     return booking_details
@@ -150,17 +153,31 @@ def get_booking_by_user_id(userid):
 @app.route("/users/<userid>/bookings", methods=["POST"])
 def add_booking_to_user(userid):
     booking_data = request.get_json()
-    date_data_objects = []
+    # date_data_objects = []
     user_id = userid
+    print(booking_data)
     movie_id = booking_data['movieId']
     date = booking_data['date']
-    grpc_request = booking_pb2.BookingData(userid=user_id, dates=[booking_pb2.DateData(date=date, movies=[booking_pb2.Movie(movie=movie_id)])])
+    grpc_request = booking_pb2.BookingData(userid=user_id, dates=[
+        booking_pb2.DateData(date=date, movies=[booking_pb2.Movie(movie=movie_id)])])
     # for date_entry in booking_data['dates']:
     #     movie_objects = [booking_pb2.Movie(movie=movie_id) for movie_id in date_entry['movies']]
     #     date_data_obj = booking_pb2.DateData(date=date_entry['date'], movies=movie_objects)
     #     date_data_objects.append(date_data_obj)
     # grpc_request = booking_pb2.BookingData(userid=userid, dates=date_data_objects)
     response = stub.AddBooking(grpc_request)
+    return jsonify({"success": response.success, "message": response.message})
+
+
+@app.route("/users/<userid>/bookings", methods=["DELETE"])
+def delete_booking_by_user_id(userid):
+    movieid = request.args.get('movieId')
+    date = request.args.get('date')
+    if not movieid or not date:
+        return make_response(jsonify({"error": "Movie id or date not provided"}), 400)
+    grpc_request = booking_pb2.BookingData(userid=userid, dates=[
+        booking_pb2.DateData(date=date, movies=[booking_pb2.Movie(movie=movieid)])])
+    response = stub.DeleteBooking(grpc_request)
     return jsonify({"success": response.success, "message": response.message})
 
 
@@ -195,54 +212,37 @@ def get_bookings_details(userid):
     return make_response(jsonify(response), 200)
 
 
-@app.route("/users/<userid>/bookings", methods=['GET'])
-def get_movies_for_user_and_date(userid):
-    date = request.args.get('date')
-    try:
-        booking_response = get_booking_by_user_id(userid)
-        result = []
-        for date_data in booking_response['dates']:
-            if date_data['date'] == date:
-                for movie in date_data['movies']:
-                    result.append(movie)
-        if not result:
-            return make_response(jsonify({"error": "No reservations for this date"}), 404)
-        return make_response(jsonify(result), 200)
-    except Exception as e:
-        return make_response(jsonify({"error": str(e)}), 500)
+# @app.route("/bookings", methods=["POST"])
+# def add_booking():
+#     booking_data = request.get_json()
+#     date_data_objects = []
+#     for date_entry in booking_data['dates']:
+#         movie_objects = [booking_pb2.Movie(movie=movie_id) for movie_id in date_entry['movies']]
+#         date_data_obj = booking_pb2.DateData(date=date_entry['date'], movies=movie_objects)
+#         date_data_objects.append(date_data_obj)
+#     grpc_request = booking_pb2.BookingData(userid=booking_data['userid'], dates=date_data_objects)
+#     response = stub.AddBooking(grpc_request)
+#     return jsonify({"success": response.success, "message": response.message})
 
 
-@app.route("/bookings", methods=["POST"])
-def add_booking():
-    booking_data = request.get_json()
-    date_data_objects = []
-    for date_entry in booking_data['dates']:
-        movie_objects = [booking_pb2.Movie(movie=movie_id) for movie_id in date_entry['movies']]
-        date_data_obj = booking_pb2.DateData(date=date_entry['date'], movies=movie_objects)
-        date_data_objects.append(date_data_obj)
-    grpc_request = booking_pb2.BookingData(userid=booking_data['userid'], dates=date_data_objects)
-    response = stub.AddBooking(grpc_request)
-    return jsonify({"success": response.success, "message": response.message})
+# @app.route("/bookings/<bookingid>", methods=["PUT"])
+# def update_booking(bookingid):
+#     update_data = request.get_json()
+#     date_data_objects = []
+#     for date_entry in update_data['dates']:
+#         movie_objects = [booking_pb2.Movie(movie=movie_id) for movie_id in date_entry['movies']]
+#         date_data_obj = booking_pb2.DateData(date=date_entry['date'], movies=movie_objects)
+#         date_data_objects.append(date_data_obj)
+#     grpc_request = booking_pb2.BookingData(userid=update_data['userid'], dates=date_data_objects)
+#     response = stub.UpdateBooking(grpc_request)
+#     return jsonify({"success": response.success, "message": response.message})
 
 
-@app.route("/bookings/<bookingid>", methods=["PUT"])
-def update_booking(bookingid):
-    update_data = request.get_json()
-    date_data_objects = []
-    for date_entry in update_data['dates']:
-        movie_objects = [booking_pb2.Movie(movie=movie_id) for movie_id in date_entry['movies']]
-        date_data_obj = booking_pb2.DateData(date=date_entry['date'], movies=movie_objects)
-        date_data_objects.append(date_data_obj)
-    grpc_request = booking_pb2.BookingData(userid=update_data['userid'], dates=date_data_objects)
-    response = stub.UpdateBooking(grpc_request)
-    return jsonify({"success": response.success, "message": response.message})
-
-
-@app.route("/bookings/<bookingid>", methods=["DELETE"])
-def delete_booking(userid):
-    grpc_request = booking_pb2.BookingUserId(userid=userid)
-    response = stub.DeleteBooking(grpc_request)
-    return jsonify({"success": response.success, "message": response.message})
+# @app.route("/bookings/<bookingid>", methods=["DELETE"])
+# def delete_booking(userid):
+#     grpc_request = booking_pb2.BookingUserId(userid=userid)
+#     response = stub.DeleteBooking(grpc_request)
+#     return jsonify({"success": response.success, "message": response.message})
 
 
 # TIME

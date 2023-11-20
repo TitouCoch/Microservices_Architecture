@@ -145,14 +145,14 @@
         let showtimesList = '<div class="header">Available Showtimes for ' + MOVIES[movieId].title + '</div>';
         showtimesList += '<div class="content">';
         showtimes.forEach(showtime => {
-            showtimesList += `<div class="ui label" onclick="bookShowtime('${showtime}')"><i class="clock icon"></i>${convertToDate(showtime).toLocaleDateString()} </div>`;
+            showtimesList += `<div class="ui label" onclick="bookShowtime('${showtime}', '${movieId}')">${convertToDate(showtime).toLocaleDateString()}</div>`;
         });
         showtimesList += '</div>';
         return showtimesList;
     }
 
     const fetchBookings = () => {
-        fetch(BASE_URL + '/user/booking/'+ USER_ID).then(response =>
+        fetch(BASE_URL + '/users/'+ USER_ID + '/bookings').then(response =>
             response.json()
         ).then(bookings => {
             BOOKINGS = bookings.dates;
@@ -176,8 +176,24 @@
         }
     }
 
-    const bookShowtime = (date) => {
-        //TODO: book showtime
+    const bookShowtime = (date, movieId) => {
+        fetch(BASE_URL + '/users/' + USER_ID + '/bookings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                date: date,
+                movieId: movieId
+            })
+        }).then(response => {
+            if (response.status === 200) {
+                fetchBookings();
+            }
+            $('.ui.modal')
+                .modal('hide')
+        });
+
     }
 
     const createBookingCard = (date, movieId) => {
@@ -188,7 +204,7 @@
                            ${convertToDate(date).toLocaleDateString()}
                       </div>
                     </div>
-                    <div class="ui bottom attached button negative" onclick="cancelBooking(${movieId}, ${date})">
+                    <div class="ui bottom attached button negative" onclick="cancelBooking('${movieId}', '${date}')">
                       <i class="remove icon"></i>
                       Cancel Booking
                     </div>
@@ -203,10 +219,22 @@
     }
 
     const cancelBooking = (movieId, date) => {
-        // TODO: cancel booking
+        fetch(BASE_URL + '/users/' + USER_ID + '/bookings?date=' + date + '&movieId=' + movieId, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                date: date,
+                movieId: movieId
+            })
+        }).then(response => {
+            console.log(response);
+            if (response.status === 200) {
+                fetchBookings();
+            }
+        });
     }
-
-
 
     onLoad();
 </script>
