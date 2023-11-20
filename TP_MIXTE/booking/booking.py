@@ -44,6 +44,19 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
     def AddBooking(self, request, context):
         with open('{}/data/bookings.json'.format("."), "r") as jsf:
             self.db = json.load(jsf)
+        # ensure that a showtime exists at each date for each movie
+        for date_data in request.dates:
+            showtime_by_date = stub.GetShowtimeByDate(booking_pb2.Date(date=date_data.date))
+            movies_ids = [movie.movie for movie in showtime_by_date.movies]
+            print(showtime_by_date)
+            if not showtime_by_date.movies:
+                return booking_pb2.BookingResponse(success=False, message="No showtime found for date {}".format(
+                    date_data.date))
+            for movie in date_data.movies:
+                if movie.movie not in movies_ids:
+                    return booking_pb2.BookingResponse(success=False, message="No showtime found for movie {} on "
+                                                                              "date {}".format(movie.movie,
+                                                                                                date_data.date))
         new_booking = {
             "userid": request.userid,
             "dates": [
