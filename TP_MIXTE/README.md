@@ -34,7 +34,7 @@ docker-compose up --build
 
 ### Documentation API
 
-Consultez la documentation complète de l'API dans le fichier OpenAPI : [openapi.yaml](./user/tp-mixte-rest-endpoints.yaml)
+Consultez la documentation complète de l'API dans le fichier OpenAPI : [openapi.yaml](./user/tp-mixte-rest-endpoints.yaml), ouvrir dans [Swagger Editor](https://editor.swagger.io/).
 
 ## Test des Endpoints avec Postman
 
