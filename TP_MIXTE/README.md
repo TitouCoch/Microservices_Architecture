@@ -85,23 +85,6 @@ Endpoint: `POST /user/add_booking`
 Requête JSON :
 ```json
 {
- "userid": "example_user",
- "dates": [
-     {
-         "date": "20230101",
-         "movies": ["movie1_id", "movie2_id"]
-     }
- ]
-}
-```
-
-### Mettre à jour une réservation
-
-Endpoint: `POST /user/update_booking`
-
-Requête JSON :
-```json
-{
    "movieId": "example_user",
    "date": "23082023"
 }
