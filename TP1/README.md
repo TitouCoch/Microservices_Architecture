@@ -29,7 +29,7 @@ Ce projet implémente une API pour gérer les utilisateurs, les films, les dates
 2. Lancez les microservices en exécutant :
 
    ```bash
-   docker-compose up
+   docker-compose up --build
    ```
 
    Cette commande va construire et démarrer les conteneurs pour chaque microservice.

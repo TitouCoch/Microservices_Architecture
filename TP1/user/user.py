@@ -7,8 +7,8 @@ app = Flask(__name__)
 
 PORT = 3203
 HOST = '0.0.0.0'
-booking_service_url = "http://172.20.10.2:3201/"
-movies_service_url = "http://172.20.10.2:3200/"
+booking_service_url = "http://booking:3201/"
+movies_service_url = "http://movie:3200/"
 
 
 with open('{}/databases/users.json'.format("."), "r") as jsf:
@@ -46,10 +46,11 @@ def get_info_movies_user(userid):
     result = []
 
     for data in booking["dates"]:
+        result.append({"date": data["date"], "movies": []})
         for booking_movie in data["movies"]:
             for movie in movies:
                 if movie["id"] == booking_movie:
-                    result.append(movie)
+                    result[-1]["movies"].append(movie)
 
     res = make_response(jsonify(result), 200)
     return res
