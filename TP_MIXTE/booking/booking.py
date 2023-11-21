@@ -1,12 +1,13 @@
 import json
 import grpc
+import asyncio
 from concurrent import futures
 import booking_pb2
 import booking_pb2_grpc
 import showtime_pb2
 import showtime_pb2_grpc
 
-channel = grpc.insecure_channel('localhost:3003')
+channel = grpc.insecure_channel('showtime:3003')
 stub = showtime_pb2_grpc.ShowtimeStub(channel)
 
 
