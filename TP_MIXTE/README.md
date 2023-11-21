@@ -62,7 +62,8 @@ Requête JSON :
 {
     "title": "New Movie",
     "genre": "Action",
-    "director": "Jane Doe"
+    "director": "Jane Doe",
+    "rating": 9.0
 }
 ```
 
