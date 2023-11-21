@@ -24,7 +24,7 @@ def template():
     return make_response(render_template('index.html', body_text='This is my HTML template for Movie service'), 200)
 
 
-@app.route("/json", methods=['GET'])
+@app.route("/movies", methods=['GET'])
 def get_json():
     res = make_response(jsonify(movies), 200)
     return res

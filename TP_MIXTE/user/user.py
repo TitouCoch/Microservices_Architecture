@@ -155,7 +155,6 @@ def add_booking_to_user(userid):
     booking_data = request.get_json()
     # date_data_objects = []
     user_id = userid
-    print(booking_data)
     movie_id = booking_data['movieId']
     date = booking_data['date']
     grpc_request = booking_pb2.BookingData(userid=user_id, dates=[
