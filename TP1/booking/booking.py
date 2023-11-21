@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 PORT = 3201
 HOST = '0.0.0.0'
-showtime_service_url = "http://localhost:3202/"
+showtime_service_url = "http://showtime:3202/"
 
 with open('{}/databases/bookings.json'.format("."), "r") as jsf:
    bookings = json.load(jsf)["bookings"]

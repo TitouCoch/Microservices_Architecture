@@ -6,6 +6,7 @@ services:
       - "3004:3004"
     depends_on:
       - booking
+      - movie
 
   movie:
     build: ./movie

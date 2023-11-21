@@ -105,7 +105,6 @@ class BookingServicer(booking_pb2_grpc.BookingServicer):
     def DeleteBooking(self, request, context):
         with open('{}/data/bookings.json'.format("."), "r") as jsf:
             self.db = json.load(jsf)
-        print(request)
         for booking in self.db["bookings"]:
             if booking["userid"] == request.userid:
                 for delete_date in request.dates:
