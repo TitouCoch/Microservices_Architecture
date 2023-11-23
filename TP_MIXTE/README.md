@@ -42,19 +42,17 @@ Pour tester les endpoints qui nécessitent un body query, voici quelques exemple
 
 
 ### Ajouter un utilisateur
-Endpoint: ```POST /user/add_user/{userid}```
+Endpoint: ```POST /users```
 
 Requête JSON :
 ```json
 {
-    "id": "new_user",
     "name": "John Doe",
-    "email": "john.doe@example.com"
 }
 ```
 
 ### Ajouter un film
-Endpoint: ```POST /user/add_movie```
+Endpoint: ```POST /movies```
 
 Requête JSON :
 
@@ -62,37 +60,36 @@ Requête JSON :
 {
     "title": "New Movie",
     "genre": "Action",
-    "director": "Jane Doe",
     "rating": 9.0
 }
 ```
 
 ### Mettre à jour un film
-Endpoint: ```POST /user/update_movie/{movieid}```
+Endpoint: ```PATCH /movies/{movieid}```
 
 Requête JSON :
 
 ```json
 {
-    "rating": "8.5"
+    "rating": 8.5
 }
 ```
 
 ### Ajouter une réservation
 
-Endpoint: `POST /user/add_booking`
+Endpoint: `POST /users/{userid}/bookings`
 
 Requête JSON :
 ```json
 {
-   "movieId": "example_user",
+   "movieId": "movieIdPresentInShotimeAtThisDate",
    "date": "23082023"
 }
 ```
 
 ### Ajouter un Showtime
 
-Endpoint: `POST /user/add_showtime`
+Endpoint: `POST /showtimes`
 
 Requête JSON :
 ```json
@@ -108,7 +105,7 @@ Requête JSON :
 
 ### Modifier un Showtime
 
-Endpoint: `POST /user/update_showtime`
+Endpoint: `PUT /showtimes`
 
 Requête JSON :
 ```json
